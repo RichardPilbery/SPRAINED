@@ -12,6 +12,7 @@ library(tableone)
 library(nlme)
 library(boot)
 
+if(synth_data == FALSE) {
 df_no_wi <- read_csv('Data/final_no_wi_dataset-2020-03-05.csv') %>%
     mutate(
       intervention = ifelse(monthsSinceIntervention > 0, "Post", "Pre"),
@@ -29,7 +30,7 @@ df_no_wi <- read_csv('Data/final_no_wi_dataset-2020-03-05.csv') %>%
       newTimeElapsed = ifelse(timeElapsedMonths < 13, timeElapsedMonths + 1, timeElapsedMonths - 1)
     ) %>% filter(newTimeElapsed < 25) %>%
     dplyr::select("safe non-conveyance", "non-conveyed", "season", "ooh", "call_cat","rural_urban", "imd_decile",  "ltc", "age", "sex", "risk" , "los", "intervention", "rot_paras", "rp", "newTimeElapsed", "conveyed", "recontact", "recontact_conveyed", conveyed, recontact, recontact_RRV, recontact_Amb)
-
+}
 
 # Synthetic data
 if(synth_data == TRUE) {
