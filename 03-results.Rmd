@@ -10,9 +10,6 @@ output:
 ```{r setup, include=FALSE, cache=F}
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message = FALSE, results = TRUE, cache = T, fig.align = "center", out.width = "90%")
 
-#format = "latex"
-
-
 options(bookdown.post.latex = function(x) {
   
   # x is the content of the LaTeX output file

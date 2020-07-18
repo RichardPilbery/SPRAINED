@@ -61,6 +61,7 @@ ORCID: [https://orcid.org/0000-0002-5797-9788](https://orcid.org/0000-0002-5797-
 
 # Check if abstract data file exists. If not, insert dummy values
 
+format = "latex"
 synth_data = TRUE
 
 if(synth_data == FALSE) {

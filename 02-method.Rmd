@@ -73,8 +73,6 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message = FALSE, results = TR
   library(tidyverse)
   library(kableExtra)
 
-format = "latex"
-
   cc <- data.frame(
     item = c("999 call", "Ambulance: see and treat", "Ambulance: see, treat and convey", "ED attendance"),
     cost = c("£7.33", "£209.38", "£257.34", "£135.00"),
