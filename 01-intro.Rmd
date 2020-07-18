@@ -1,0 +1,15 @@
+# Introduction {-}
+
+The National Health Service (NHS) in the United Kingdom is facing a 5% year-on-year increase in demand for urgent and emergency care services [@national_audit_office_nhs_2017]. In 2018/19, ambulance services in England provided a face-to-face assessment to nearly 7.9 million incidents, of which 7.6 million were conveyed to hospital [@nhs_england_ambulance_2019]. This conveyance rate of around 69% is occurring despite an increase in non-emergency cases and is placing increasing demands on already crowded emergency departments (EDs), leading to decreased availability of ambulances as turnaround times at hospitals increase [@willett_addressing_2017]. ED overcrowding is a significant issue for patients, resulting in poorer quality of care, increased healthcare costs and potentially, increased mortality [@sun_effect_2013; @guttmann_association_2011; @bernstein_effect_2009; @richardson_increase_2006].
+
+Yorkshire Ambulance Service have been early adopters of initiatives to address inappropriate conveyance, and have had advanced paramedics working in the role of Emergency Care Practitioners (ECP), since 2004 [@mason_developing_2003]. Even without selective dispatching, ECPs consistently have non-conveyance rates double that of other paramedics in the Trust. More recently, the specialist paramedic (SP) role has been introduced, with education comprising of a 1 year university program. However, SP non-conveyance rates have been only marginally better compared to other paramedics within the Trust.
+
+In 2018, Health Education England funded a pilot scheme to rotate paramedics into a range of healthcare settings, with the aim of improving patient care and relieving pressures on primary care, ambulance services and other parts of the NHS in a sustainable way [@turner_evaluation_2018]. **However, to date no cost-effectiveness analysis of the scheme has been published - This is not the case. Check with 2019 HEE report**. 
+
+This pilot presented an opportunity to develop SPs and further improve their decision-making, with potential to deliver the patient and cost-benefits of the role as originally anticipated.
+
+This study aimed to evaluate whether specialist paramedics who have rotated into primary care, are appropriately increasing the level and trend of non-conveyance decisions compared to a matched control population of YAS paramedics and are cost-effective.
+
+## Objectives {-}
+
+The primary objective was to determine the change and trend in proportion of appropriate non-conveyance decisions by specialist paramedics who have completed a 10-week rotation in a GP surgery. The secondary objective was to compare the cost-effectiveness between specialist paramedics who have completed a 10-week rotation in a GP surgery and a matched control group of YAS paramedics.

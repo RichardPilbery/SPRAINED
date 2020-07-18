@@ -1,0 +1,91 @@
+# Methods {-}
+
+This study was a natural experiment using routinely collected observational data. We utilised a controlled interrupted time series analysis method to detect any change in the level and trend of paramedic appropriate non-conveyance decisions. The cost-effectiveness analysis examined the cost per appropriate non-conveyance achieved for patients receiving care from specialist paramedics who have completed a 10 week rotation in a GP surgery compared with those receiving care from paramedics who did not take part in the primary care rotational pilot.
+
+## Setting {-}
+
+Yorkshire Ambulance Service NHS Trust (YAS) provides 24-hour emergency and health care services for the county of Yorkshire in northern England. The county has a population of approximately five million, spread over almost 6000 square miles of varied terrain, included isolated moors and dales, coastline and heavily populated urban areas. In 2018/19 YAS received more than 998,500 emergency calls and responded to 798,968 incidents through either a vehicle arriving on scene or by telephone advice.
+
+### Specialist paramedic rotation {-}
+
+YAS employs approximately 118 specialist paramedics (SPs) and emergency care practitioners (ECPs). 30 clinicians took part in the rotational paramedic pilot across different sites, with the largest scheme comprising 5 ECPs and 10 SPs working with Leeds Primary Care. The ECPs and SPs rotated between providing a home visiting service for 15 GP surgeries, front line operations (999) and the emergency operations centre (EOC).
+
+
+## Data sources {-}
+
+We used routinely collected computer aided dispatch (CAD) and patient record data to identify all cases attended by one of the 10 SPs who had completed a GP placement in the Leeds area. For operational reasons, these placements were staggered, with the first paramedics entering the rotation in June 2018 and the final paramedics completed their placements at the end of December 2018. In order to obtain sufficient data pre- and post-pilot, all cases attended by these paramedics in the 12 month period prior to the rotation commencing, and 12 months after the placement had completed, were obtained. To count as an 'attendance', the SP's name had to appear on the patient record.
+
+To take account of case-mix and paramedic experience in the pre- and post-rotational phase, a matched comparison (control) group consisting of cases in Yorkshire covering the period from the 1st June, 2017 to 31st December, 2019 was obtained. This cohort of patients received a face-to-face assessment by paramedics who did not take part in the GP rotation.
+
+Since YAS does not keep a record of paramedic registration beyond the current 2-year registration cycle, it was not possible to determine how long staff had been registered as a paramedic. Instead, we identified when staff were first entered into the Health and Professions Council (HCPC) paramedic register.
+
+## Study variables {-}
+We hypothesised that appropriate non-conveyance was likely to increase following the 10-week placement, but needed to ensure that we took account of factors previously identified as being important for pre-hospital clinicians making non-conveyance decisions [@ocathain_understanding_2018]. To achieve this, we aimed to match the control and intervention groups on the following variables:
+
++ Patient:
+    + Age (5 year increments)
+    + Sex
+    + Working impression (as determined by paramedic on scene)
+    + Time of call (in-hours/out-of-hours)
+    + Call category
+    + Call month and year
+    + Lowest National Early Warning Score (NEWS) threshold
++ Location (lower super output area, LSOA):
+    + Urban/rural
+    + Index of multiple deprivation decile
+    + Proportion of population within LSOA with a long-term physical or mental illness (0--4%, 4--8%, 8--12%)
++ Paramedics
+    + Years registered as a paramedic (<1 year, 1–5 years, >5 years)
+    + Role designation at time of incident.
+    
+The ambulance service does not routinely capture outcome data for patients, we pragmatically defined appropriate non-conveyance as any patient episode where the patient was not transferred to hospital and no further calls were made to the ambulance service in the following 72 hours.
+
+## Matching {-}
+
+Matching was performed utilising a genetic algorithm and computed using the 'Matching' R statistics package [@sekhon_multivariate_2011]. Genetic algorithms are a subgroup of evolutionary computing which as the name suggests, imitate biological processes of reproduction and natural selection to solve according to 'fitness' [@mitchell_introduction_1996]. The 'Matching' package uses this algorithm to find the optimal balance between groups by examining the cumulative probability distribution functions of a variety of standardised statistics such as t-tests and Kolmogorov-Smirnov tests.
+
+Cases where the patient record could not be located, or where data was missing were excluded. With the exception of ECPs (who were removed since their non-conveyance rates are consistently higher than other clinicians), it was not possible to accurately determine what role designation paramedics in the control group had. As a result, this was removed as a matching variable.
+
+
+## Statistical methods {-}
+
+
+### Sample size calculation {-}
+The sample size was constrained by the fact that this was an observational study with only 12 months pre- and post- rotation available. Based on a previous audit of 999 call data, we anticipated that there would be approximately 700 patient episodes per month. Given that the time series analysis included data from 24 months in total, this resulted in an estimated 33,600 patients.
+
+### Summary of baseline data {-}
+Descriptive statistics were used to summarise the data pre- and post-rotation and between rotational paramedics and non-rotational paramedics, to illustrate the success of matching. Median and interquartile ranges were reported for continuous variables, and counts and proportions reported for categorical data.
+
+### Primary outcome analysis {-}
+
+We conducted a retrospective analysis of appropriate non-conveyance before and after the GP rotation, using segmented regression as part of a controlled interrupted time series (CITS) design [@penfold_use_2013]. Since the SP placements were staggered, the actual month and year was not utilised. Instead, the number of months before and after the placement were used, so that month 1 was the month that occurred 12 months prior to the GP placement for all SPs and month 24, the month that occurred 12 months after the placement. It was anticipated that this would remove or reduce any autocorrelation. However, we checked for autoregression and moving averages by performing the Durbin-Watson test and by plotting autocorrelation function and partial autocorrelation function plots. Coefficients from the model were used to predict the absolute and relative changes in appropriate non-conveyance immediately after the 10-week placement and at 12-months.
+
+### Secondary outcome analysis {-}
+
+Salary costs were calculated for the 10 week GP placement and divided by the number of incidents attended by SPs to calculate a per-incident cost. SPs were assumed to be salaried at NHS Agenda for Change mid-band 6, which was £31,121 for 2018/19. Education costs were not included since all SPs had already undertaken the education component prior to the rotation commencing. The resource use related to the dispatch of the ambulance, cost of conveyance and admission to the ED was calculated using reference costs published by the NHS Improvement reference costs [@nhs_improvement_reference_2018] (Table \@ref(tab:callcosts). For example, a non-conveyance would comprise the cost of answering a 999 call and an ambulance: see and treat. In the event that a recall was made within 72 hours, the total cost for the non-conveyance would be the 999 call, ambulance: see and treat plus the cost of the second call i.e. 999 call and ambulance (see and treat or see, treat and convey plus ED attendance). 
+
+```{r setup1, include=FALSE }
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message = FALSE, results = TRUE, cache = T, fig.align = "center", out.width = "90%")
+```
+
+```{r callcosts, cache = F }
+
+  library(tidyverse)
+  library(kableExtra)
+
+format = "latex"
+
+  cc <- data.frame(
+    item = c("999 call", "Ambulance: see and treat", "Ambulance: see, treat and convey", "ED attendance"),
+    cost = c("£7.33", "£209.38", "£257.34", "£135.00"),
+    stringsAsFactors = F
+  )
+
+  knitr::kable(cc, caption="Unit costs to the NHS for ambulance 999 calls", booktabs = T, longtable = T, format = format) %>%
+     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position"))
+
+```
+
+
+Bootstrapping was used to estimate uncertainty (95% confidence intervals) around cost estimates. Costs of those patients seen by paramedics undertaking the 10-week training rotation was compared with matched controls and the results presented as the cost per appropriate conveyance.
+

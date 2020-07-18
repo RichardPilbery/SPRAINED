@@ -1,0 +1,69 @@
+---
+editor_options:
+  chunk_output_type: console
+output:
+  word_document: default
+---
+
+# Appendix A {-}
+
+Due to the high number of missing working impressions, we conducted a sensitivity analysis including data that was matched without working impression as a variable. Figure \@ref(fig:fig6-no-wi) shows the change in proportion of appropriate non-conveyance in this group and can be compared with \@ref(fig:fig6). The results of the segmented regression can be seen in Table \@ref(tab:cits-table-no-wi).
+
+```{r fig6-no-wi, fig.cap="Effect of 10-week primary care rotation on safe non-conveyance (excluding working impression). a) Monthly appropriate non-conveyance rates b) Fitted CITS model. Dashed lines represent the counterfactuals.", fig.height = 10}
+
+rp_12_months_pred_no_wi <- predict(lm_fit_no_wi, new_data = rp_12_months_data_points)
+rp_12_months_pred_ci_no_wi <- predict(lm_fit_no_wi, new_data = rp_12_months_data_points, type = "conf_int")
+
+mean_pred_no_wi <- predict(lm_fit_no_wi, new_data = new_data_points)
+cf_mean_pred_no_wi <- predict(lm_fit_no_wi, new_data = cf_data_points)
+
+plot_data_no_wi <- new_data_points %>%
+  bind_cols(mean_pred_no_wi)
+
+cf_plot_data_no_wi <- cf_data_points %>%
+  bind_cols(cf_mean_pred_no_wi)
+
+cols2 <- c("control"="#0000ff", "intervention"="#ff0000")
+
+fig6_no_wi <- ggplot(data = ts_df_no_wi, aes(x = time, y = propnonRecontact)) + 
+  # Prepare graph
+  theme_bw() +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Proportion of patients safely non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  geom_vline(xintercept = 12.5, color="black") +
+  annotate("text", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("text", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black") +
+  
+  # Plot actual data points
+  geom_point(data=ts_df_no_wi %>% filter(rp == 0), aes(color="control"), alpha = 0.2) +
+  geom_point(data=ts_df_no_wi %>% filter(rp == 1), aes(color="intervention"), alpha = 0.2) +
+  
+  # Plot rp lines
+  geom_line(data=plot_data_no_wi %>% filter(rp == 1, level == 0), aes(y = .pred, color="intervention"), linetype="solid") +
+  geom_line(data=plot_data_no_wi %>% filter(rp == 1, level == 1), aes(y = .pred, color="intervention"), linetype="solid") +
+  
+  # Plot counterfactual rp lines
+  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
+  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
+  
+  # Plot control lines
+  geom_line(data=plot_data_no_wi %>% filter(rp == 0, level == 0), aes(y = .pred, color="control"), linetype="solid") +
+  geom_line(data=plot_data_no_wi %>% filter(rp == 0, level == 1), aes(y = .pred, color="control"), linetype="solid") +
+  
+  # Plot counterfactual control lines
+  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
+  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
+
+  scale_color_manual(name="Group", values = cols2) +
+  theme(legend.position = "bottom")
+
+ggpubr::ggarrange(fig5_no_wi, fig6_no_wi, nrow = 2, ncol = 1, labels = "auto", common.legend = T)
+
+```
+
+```{r cits-table-no-wi, cache = F}
+knitr::kable(ols_table_no_wi, caption="Result of segmented regression analysis for appropriate non-conveyance (excluding working impression)", booktabs = TRUE, longtable = T, format = format) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position")) %>%
+  column_spec(1, width = "25em")
+```
+

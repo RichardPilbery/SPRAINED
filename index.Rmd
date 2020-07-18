@@ -1,0 +1,123 @@
+--- 
+title: "SPRAINED study"
+author: "Richard Pilbery, Tracey Young, Andrew Hodge"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: 
+  bookdown::pdf_document2:
+    toc: FALSE
+  bookdown::word_document2:
+    toc: FALSE
+documentclass: article
+classoption: openany
+papersize: a4
+fontfamily: carlito
+fontfamilyoptions: [sfdefault]
+bibliography: [SPRAINED-refs.bib]
+link-citations: yes
+github-repo: RichardPilbery/generic-bookdown
+always_allow_html: yes
+geometry: margin=2cm
+header-includes:
+  \AtBeginDocument{\let\maketitle\relax}
+  \usepackage{multirow}
+---
+
+`r if (!knitr:::is_html_output()) '
+# The effect of a specialist paramedic primary care rotation on appropriate non-conveyance decisions: a controlled interrupted time series analysis {-}
+'`
+`r if (knitr:::is_html_output()) '
+# Preamble {-}
+'`
+
+## Author information {-}
+| **Richard Pilbery**
+| Research paramedic
+| Yorkshire Ambulance Service NHS Trust
+| Springhill, Brindley Way
+| Wakefield 41 Business Park
+| Wakefield
+| WF2 0XQ
+
+ORCID: [https://orcid.org/0000-0002-5797-9788](https://orcid.org/0000-0002-5797-9788)
+
+| email: r.pilbery@nhs.net
+| tel: 
+
+| **Prof. Tracey Young**
+| School of Health and Related Research, University of Sheffield
+
+| **Andrew Hodge**
+| Yorkshire Ambulance Service NHS Trust
+
+
+**Keywords:** Paramedic rotation, Urgent care, Safe non-conveyance
+
+```{r abstract, echo = FALSE, warning=FALSE, message = FALSE, results = F, cache = FALSE}
+
+# LATEX fonts
+# https://www.tug.org/FontCatalogue/sansseriffonts.html
+# Cabin is okay
+
+# Check if abstract data file exists. If not, insert dummy values
+
+synth_data = TRUE
+
+if(synth_data == FALSE) {
+  abstract = 'Data/abstract-data.rds'
+} else {
+  abstract = 'SynData/abstract-data.rds'
+}
+
+if(!file.exists(abstract)) {
+  
+  # Dummy values
+adf <- data.frame(
+
+  # CITS data
+  level_val = 0,
+  level_ci = 0,
+  level_p = 0,
+  trend_val = 0,
+  trend_ci = 0,
+  trend_p = 0,
+  
+  # Economic data
+  rp_mean_cost_per_inc = 0,
+  rp_ci_per_inc = 0,
+  control_mean_cost_per_inc = 0,
+  control_mean_ci_per_inc = 0,
+  
+  rp_mean_cost_per_nc = 0,
+  rp_ci_per_nc = 0,
+  control_mean_cost_per_nc = 0,
+  control_ci_per_nc = 0,
+  
+  stringsAsFactors = F
+  
+)
+  
+} else {
+  adf <- readRDS(abstract)
+}
+
+
+```
+
+## Abstract {-}
+
+### Introduction {-}
+Ambulance conveyance rates in the UK NHS are almost 70%, despite an increase in non-emergency cases. This is increasing the demands on crowded emergency departments (ED) and contributes to increased ambulance turnaround times. Yorkshire Ambulance Service introduced a specialist paramedic (SP) role to try and address this, but non-conveyance rates in this group have not been much greater than regular paramedics.
+
+
+### Methods {-}
+We conducted a controlled interrupted time series analysis to study appropriate non-conveyance rates before and after the GP rotation. A costing analysis examined the average cost per appropriate non-conveyance achieved for patients receiving care from intervention group SPs compared to a matched control group.
+
+### Results {-}
+Between June 2017 and December 2019 there were 7349 incidents attended by intervention group SPs and eligible for inclusion. Following removal of cases with missing data, 5537/7349 (75.3%) cases remained. Post-placement, the intervention group demonstrated an increase in appropriate non-conveyance rate by `r adf$level_val`% (95%CI `r adf$level_ci`%, p=`r adf$level_p`) and a reduction in the trend of appropriate non-conveyance relative to the control group of `r adf$trend_val`% (95%CI `r adf$trend_ci`%, p=`r adf$trend_p`). 
+
+Post-rotation, intervention group SPs cost a mean of £`r adf$rp_mean_cost_per_inc` per incident (95% CI £`r adf$rp_ci_per_inc`), compared to £`r adf$control_mean_cost_per_inc` per incident (95% CI £`r adf$control_mean_ci_per_inc`) for the control group. Cost per appropriate non-conveyance for intervention SPs was a mean of £`r adf$rp_mean_cost_per_nc` (95%CI £`r adf$rp_ci_per_nc`) versus £`r adf$control_mean_cost_per_nc` (95%CI £`r adf$control_ci_per_nc`) for the control group.
+
+### Conclusion {-}
+
+In this single NHS ambulance service study, we found a clinically and statistical significant increase in appropriate non-conveyance rates by SPs who had completed a 10-week GP rotation. This improvement persisted for the 12-month period following the rotation and was cheaper compared to usual care.

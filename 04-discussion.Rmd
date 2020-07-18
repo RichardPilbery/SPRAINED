@@ -1,0 +1,51 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+# Discussion {-}
+
+** NEED TO DISCUSS CHANGE IN VOLUME AND ACUITY OF CALLS **
+
+In this single NHS ambulance service study, we found a clinically and statistical significant increase in appropriate non-conveyance of patients following a 10-week GP rotation. In addition, this intervention proved to be cost saving compared to usual care. These results needs to be interpreted with caution, since they only include data from a single ambulance service with less than 10% of all paramedics currently in the role of specialist paramedic. Training and experiential opportunities do vary between organisations, in part likely due to the piecemeal way in which the advanced practice roles have evolved for paramedics in the UK [@turner_evaluation_2018]. YAS has been commissioning the education of specialist paramedics with local Higher Education Institutions since 2014, with a focus on minor illness and injury, and long-term conditions, which is likely to resonate with other similar schemes [@hodge_maintaining_2018]. Furthermore, YAS have continued to work to develop their workforce model aligned to the College of Paramedics post-registration career framework since 2015 [@college_of_paramedics_post-registration_2018].
+
+The non-conveyance rates seen in this study are difficult to compare with other reported statistics, since the population included in this study is different to all emergency call activity. For example, in the pre-placement phase, there was a higher proportion of category 1 and 2 calls (75--76.9%) compared to figures reported nationally (64%), but a lower proportion post-placement, due to greater case selection with the introduction of the dedicated SP tasking desk [@nhs_england_ambulance_2018]. During the study period, YAS see-and-treat rates were between 22.9--25.4% which was lower than the English average of 29.3--30.7% [@nhs_england_ambulance_2020]. 
+
+An evaluation of the first phase of the rotating paramedic pilot reported non-conveyance rates of at least 70%, which mirrors the performance of rotating specialist paramedics in Wales [@association_of_ambulance_chief_executives_model_2019]. Two sites in the rotating paramedic pilot had non-conveyance rates in excess of 90%, tended to be primary care focused, rather than fully ambulance service based, highlighting the different interpretation of the guidance issued by Health Education England.
+
+In YAS, the integration into the primary care team for the Leeds rotation, enabled the SPs to develop a greater understanding of the local healthcare system as they navigated pathways across community and acute care. This knowledge was available to be utilised when the SPs rotated back into YAS and were responding to 999 calls in a rapid response car, or working in the EOC to identify appropriate 999 calls for SP response.
+
+
+## Limitations {-}
+
+It is important to acknowledge this study's limitations. We used routine observational data rather than conducting a randomised-controlled trial for example, which was not possible since the rotation had already completed on commencement of this work. The outcome of this study, while patient focused, could not capture episodes where patients presented to other sectors of the healthcare system as a result of a complication of not being conveyed to hospital. In addition, identifying re-contacts, relied on identification of cases either by NHS number or a combination of patient name, age and incident location which may have been missing on subsequent calls. 
+
+The number of missing working impression codes was not anticipated, and so no contingency was made in the methodology to account for this. While the sensitivity analysis showed that this is likely to have had a modest impact on our findings, in retrospect this study would have been more robust with a plan to take account of this.
+
+Finally, it became apparent once the data was provided that determining the grade of paramedic with any certainty was not possible, which may have inflated the performance of the control group by inclusion of specialist paramedics who had not taken part in the GP rotation.
+
+# Conclusion {-}
+
+In this single NHS ambulance service study, we found a clinically and statistical significant increase in appropriate non-conveyance rates by specialist paramedics who had completed a 10-week GP rotation. This improvement persisted for the 12-month period following the rotation and demonstrated cost savings compared to usual care.
+
+
+## Acknowledgements {-}
+
+This work uses data provided by patients and collected by the NHS as part of their care and support. The authors would also like to thank the Yorkshire Ambulance service business intelligence team who collated the data used in this study. 
+*Claire Lindsay and Harriet ?*
+
+## Contributors {-}
+
+RP, TY and AH conceived and designed the study. RP obtained the research approvals and acts as guarantor for the paper. All authors drafted the manuscript and contributed substantially to its revision.
+
+## Funding {-}
+
+This paper presents independent research by the NIHR Applied Research Collaboration Yorkshire and Humber (ARC YH).
+
+## Disclaimer {-}
+
+The views expressed in this publication are those of the author(s) and not necessarily those of the National Institute for Health Research or the Department of Health and Social Care.
+
+
+
+

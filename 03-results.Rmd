@@ -1,0 +1,745 @@
+---
+editor_options:
+  chunk_output_type: console
+output:
+  word_document: default
+---
+# Results {-}
+
+
+```{r setup, include=FALSE, cache=F}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message = FALSE, results = TRUE, cache = T, fig.align = "center", out.width = "90%")
+
+#format = "latex"
+
+
+options(bookdown.post.latex = function(x) {
+  
+  # x is the content of the LaTeX output file
+  # str_replace can take a named vector of patterns and replacements
+  replace_patterns <- c(
+    "^\\\\bibliography\\{SPRAINED-refs.bib\\}" = "",         # Remove the default bibliography
+    "^BIBLIOGRAPHY" = "\\\\bibliography{SPRAINED-refs.bib}"  # Add it in a new spot
+  )
+  
+  stringr::str_replace_all(x, replace_patterns)
+})
+
+
+# https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders/46083308#46083308
+library(kableExtra)
+if (knitr::is_latex_output()) {
+  usepackage_latex("booktabs")
+  usepackage_latex("longtable")
+  usepackage_latex("array")
+  usepackage_latex("multirow")
+  usepackage_latex("wrapfig")
+  usepackage_latex("float")
+  usepackage_latex("colortbl")
+  usepackage_latex("pdflscape")
+  usepackage_latex("tabu")
+  usepackage_latex("threeparttable")
+  usepackage_latex("threeparttablex")
+  usepackage_latex("ulem", "normalem")
+  usepackage_latex("makecell")
+}
+
+
+#format = 'pandoc'
+
+library(tidyverse)
+library(stringr)
+library(tableone)
+library(nlme)
+library(boot)
+
+if(synth_data == FALSE) {
+  #df <- read_csv('Data/final_wi_dataset-2020-03-03.csv') %>%
+  df <- read_csv('Data/final_wi_dataset-with_rp_id_2020-05-26.csv') %>%
+    mutate(
+      intervention = ifelse(monthsSinceIntervention > 0, "Post", "Pre"),
+      rot_paras = ifelse(rp == 1, "Rotational Paramedics", "Control"),
+      rp_table = ifelse(rp == 1, "Intervention", "Control"),
+      age = ordered(age, levels = c("[0,5]", "(5,10]", "(10,15]", "(15,20]", "(20,25]", "(25,30]", "(30,35]", "(35,40]", "(40,45]", "(45,50]", "(50,55]", "(55,60]", "(60,65]","(65,70]","(70,75]", "(75,80]", "(80,85]", "(85,90]", "(90,95]", "(95,100]", "(100,105]", "(105,110]")),
+      risk = ordered(risk, levels=c("Low", "Low-Medium","Medium", "High")),
+      los = ordered(los, levels=c("<1 year", "1 to 5 years", ">5 years")),
+      ltc = ordered(ltc, levels=c("[0,4]", "(4,8]", "(8,12]","(12,16]")),
+      `non-conveyed` = ifelse(conveyed == 1, 0, 1),
+      `safe non-conveyance` = case_when(
+          conveyed == 1 ~ 0,
+          recontact == 1 ~ 0,
+          TRUE ~ 1
+        ),
+      newTimeElapsed = ifelse(timeElapsedMonths < 13, timeElapsedMonths + 1, timeElapsedMonths - 1)
+    ) %>% filter(newTimeElapsed < 25) %>%
+    dplyr::select("safe non-conveyance", "non-conveyed", "season", "ooh", "call_cat","rural_urban", "imd_decile",  "ltc", "age", "sex", "risk" , "wi", "los", "intervention", "rot_paras", "rp", "rp_table", "newTimeElapsed", "conveyed", "recontact", "recontact_conveyed", conveyed, recontact, recontact_RRV, recontact_Amb, rp_id)
+
+}
+
+# Synthetic data
+if(synth_data == TRUE) {
+  
+  df <- readRDS('SynData/synthetic-dataset-with-wi.rds') %>%
+    mutate(
+      call_cat = as.character(call_cat),
+      age = ordered(age, levels = c("[0,5]", "(5,10]", "(10,15]", "(15,20]", "(20,25]", "(25,30]", "(30,35]", "(35,40]", "(40,45]", "(45,50]", "(50,55]", "(55,60]", "(60,65]","(65,70]","(70,75]", "(75,80]", "(80,85]", "(85,90]", "(90,95]", "(95,100]", "(100,105]", "(105,110]")),
+      los = ordered(los, levels=c("<1 year", "1 to 5 years", ">5 years")),
+      rp_table = ifelse(rp == 1, "Intervention", "Control")
+    )
+
+}
+
+matchedTbl_pre_post_control_rp <- CreateTableOne(
+  vars = c("safe non-conveyance", "non-conveyed", "season", "ooh", "call_cat","rural_urban", "imd_decile",  "ltc", "age", "sex", "risk" , "wi", "los"),
+  strata = c("intervention","rp_table"),
+  data = df,
+  test = F,
+  factorVars = c("safe non-conveyance", "non-conveyed", "season", "call_cat", "ooh", "risk", "los", "age", "sex", "imd_decile", "rural_urban", "ltc", "wi")
+)
+
+matrix_tbl <- print(matchedTbl_pre_post_control_rp)
+col1 <- rownames(matrix_tbl)
+
+# Formatting of headings
+
+col1[2] <- "Appropriately not conveyed n (%)"
+col1[3] <- "Not conveyed n (%)"
+col1[4] <- "Yearly quarter n (%)"
+col1[9] <- "Out-of-hours n (%)"
+col1[10] <- "Call category"
+col1[16] <- "Urban location n (%)"
+col1[17] <- "IMD decile n (%)"
+col1[28] <- "Prevalence of Long-term conditions n (%)"
+col1[33] <- "Patient age in years n (%)"
+col1[56] <- "Patient sex n (%)"
+col1[60] <- "NEWS category n (%)"
+col1[65] <- "Clinical working impression n (%)"
+col1[104] <- "Years registered as a paramedic"
+
+# This will come in handy for Table 1 headers
+#list_of_cols <- c(4, 10, 17, 28, 33, 56, 60, 65, 104)
+
+
+df_summary <- bind_cols(data.frame(Measure = col1, stringsAsFactors = F), as_tibble(matrix_tbl)) %>%
+  dplyr::select(Measure, `Pre:Control`, `Pre:Intervention`, `Post:Control`, `Post:Intervention`)
+
+colnames(df_summary) <- c("Measure", "Control", "Intervention", "Control", "Intervention")
+
+
+
+```
+
+
+```{r sensitivity-analysis, results = FALSE}
+
+# Need to undertake the sensitivity analysis first to report the results later.
+source('Code/prep_no_wi.R')
+
+```
+
+As part of the Health Education England rotational paramedic pilot, 10 specialist paramedics undertook a 10 week placement in a primary care setting in the Leeds area. Five paramedics commenced their placement in June 2018, with a further three starting in August 2018 and the final two starting their placement in October 2018.
+
+Between 1st June 2017 and 31st December, 2019 there were 8849 incidents attended by one of the rotational paramedics. Once data was adjusted to remove any cases occurring in the 10 week rotation period, and outside of the 12 months prior to the start of the rotation and 12 months after the end of the rotation, 7349 cases remained. A further 6 had no gender recorded, 15 had no age recorded and 8 had no post code, leaving 7326/7349 (99.7%) cases. A further 4 cases were excluded due to a missing index of multiple deprivation decile (3 cases), rural urban classification (3 cases) and/or prevalence of missing long-term condition data (4 cases), leaving 7322/7349 (99.6%) cases. Finally, no working impression was included in 1785 cases, resulting in a final dataset of 5537/7349 (75.3%) cases for inclusion in the final analysis. Due to the high number of missing working impressions, a sensitivity analysis was performed excluding the working impression as a variable (Appendix 1).
+
+## Matched dataset for analysis {-}
+
+The matching algorithm utilised 5198/5537 (93.9%) cases. Overall, the control group was closely matched to the rotational paramedic (intervention group) incidents (defined as less than 10% in standardised mean difference). Only the NEWS risk category and prevalence of long-term conditions were outside this limit.
+
+
+## Pre- and Post-rotation exploratory data analysis {-}
+
+In addition to the substantial reduction in number of cases attended post-rotation, there were also other differences in pre- and post-rotation cases, which could have contributed to the change in rate of non-conveyance, validating the decision to include a matched control (Table \@ref(tab:table1)).
+
+
+```{r table1, cache = F}
+  
+library(kableExtra)
+
+# This will come in handy for Table 1 headers
+#list_of_cols <- c(4, 10, 17, 28, 32, 55, 59, 64, 103)
+list_of_cols <- c(4, 10,  17, 28, 33, 56, 60, 65, 104)
+df_summary <- df_summary[-list_of_cols, ]
+rownames(df_summary) = NULL
+
+kableone(df_summary, caption="Comparison of matched control and rotational paramedic groups, stratified by pre and post-placement phases", booktabs = TRUE, longtable = TRUE, format = format) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position")) %>%
+  add_header_above(c(" ", "Pre-placement" = 2, "Post-placement" = 2)) %>%
+  pack_rows(col1[4], 4, 7) %>%
+  pack_rows(col1[10], 9, 13) %>%
+  pack_rows(col1[17], 15, 24) %>%
+  pack_rows(col1[28], 25, 28) %>%
+  pack_rows(col1[33], 29, 50) %>%
+  pack_rows(col1[56], 51, 53) %>%
+  pack_rows(col1[60], 54, 57) %>%
+  pack_rows(col1[65], 58, 95) %>%
+  pack_rows(col1[104], 96, 98)
+```
+
+Operational activity was higher pre-placement (Figure \@ref(fig:fig2)), with SPs undertaking a range of additional activities in the post-placement phase, including staffing a dedicated tasking desk in EOC and working in GP practices as part of the rotation (Table \@ref(tab:activity)). Post-placement, there were also differences in patient call category and acuity based on the NEWS risk category that the SPs were tasked to attend (Figures \@ref(fig:fig3) and \@ref(fig:fig4)).
+
+
+```{r fig2, fig.cap="Number of incidents attended by rotating SPs in pre- and post-placement phases, stratified by month"}
+
+
+ggplot(df %>% filter(rp == 1), aes(x = newTimeElapsed)) +
+  geom_histogram(binwidth =1, color="black", size = 0.1, fill = "lightblue") +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Number of incidents", expand = c(0,0), breaks=seq(0, 400, 50), limits = c(0,400)) +
+  geom_vline(xintercept = 12.5, size=2) +
+  theme_minimal() +
+  #theme(legend.position = "bottom", axis.title.x = element_text(vjust=-1), axis.title.y = element_text(vjust = 2)) +
+  theme( axis.title.x = element_text(vjust=-1), axis.title.y = element_text(vjust = 2)) +
+  scale_fill_viridis_d(name="SP ID", option = "D") +
+  annotate("text", label = "Pre-placement", x = 4, y = 385, size = 4, colour = "black") +
+  annotate("text", label = "Post-placement", x = 16, y = 385, size = 4, colour = "black") 
+
+```
+
+```{r activity}
+
+activity_df <- readRDS('Data/summary_activity_table.rds') %>%
+  rename(
+    Activity = activity,
+  )
+
+kableone(activity_df, caption="SP daliy activity (exluding leave and days off) stratified by pre- and post-placement time periods", booktabs = TRUE, longtable = TRUE, format = format) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position")) 
+
+```
+
+Key: EOC - emergency operations centre, OPS - operational shift responding to 999 calls, STUDY - study leave and other training activities
+
+
+```{r fig3, fig.cap="Call category pre- and post-placement"}
+
+df1a <- df %>%
+  select(newTimeElapsed, call_cat, risk, intervention)
+
+levels(df1a$call_cat) <- c("category 1", "category 2", "category 3", "category 4", "category 5")
+
+df1a <- df1a %>%
+  mutate(
+    call_cat = case_when(
+      call_cat == "cat1" ~ "category 1",
+      call_cat == "cat2" ~ "category 2",
+      call_cat == "cat3" ~ "category 3",
+      call_cat == "cat4" ~ "category 4",
+      TRUE ~ "category 5"
+    )
+  )
+
+
+ggplot(df1a, aes(x = newTimeElapsed, fill = call_cat)) +
+  geom_histogram(binwidth =1, position="fill", color="black", size = 0.1) +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Percentage of incidents", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  labs(fill="Call Category") + 
+  theme(legend.position = "bottom", axis.title.x = element_text(vjust = -1)) + 
+  geom_vline(xintercept = 12.5, size = 1.5) +
+  scale_fill_viridis_d() +
+  annotate("label", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("label", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black")
+
+```
+
+```{r fig4, fig.cap="NEWS category pre- and post-placement", fig.pos="p"}
+
+ggplot(df, aes(x = newTimeElapsed, fill = risk)) +
+  geom_histogram(binwidth =1, position="fill", color="black", size = 0.1) +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Percentage of incidents", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  scale_fill_brewer("NEWS risk category") +
+  theme(legend.position = "bottom", axis.title.x = element_text(vjust = -1)) + 
+  geom_vline(xintercept = 12.5, size = 2) +
+  annotate("label", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("label", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black")
+
+```
+
+## Time series {-}
+
+```{r time-series-prep }
+
+ts_df <- df %>%
+  group_by(rot_paras, newTimeElapsed) %>%
+  summarise(
+    n = n(),
+    propnonConveyed = sum(conveyed == 0)/n,
+    propnonRecontact = sum(`safe non-conveyance` == 1)/n,
+    intervention = first(intervention),
+    rp = first(rp)
+  ) %>% 
+  ungroup() %>%
+  mutate(
+    intervention = ifelse(intervention == "Pre", 0, 1),
+     timeSinceIntervention = ifelse(intervention == 0, 0, newTimeElapsed - 12)
+  ) %>%
+  rename(
+    level = intervention,
+    trend = timeSinceIntervention,
+    time = newTimeElapsed
+  ) %>%
+  mutate(
+    rptime = ifelse(rp == 1, time, 0),
+    rplevel = ifelse(rp == 1, level, 0),
+    rptrend = ifelse(rp == 1, trend, 0)
+  )
+
+ts_df_no_18 <- ts_df %>%
+  filter(!(rp == 1 & time == 18))
+
+```
+
+
+```{r fig5, fig.cap="Plot of data for OLS regression with control group"}
+
+step4its_gg <- ts_df %>%
+  mutate(
+    outcome = round(propnonRecontact, 2)  )
+
+cols2 <- c("control"="#0000ff", "intervention"="#ff0000")
+
+fig5 <- ggplot(data = step4its_gg, aes(x = time, y = outcome)) + 
+  # Prepare graph
+  theme_bw() +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Proportion of patients appropriately non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  geom_vline(xintercept = 12.5, color="black") +
+  #annotate("rect", xmin=0.5, xmax= 12.5, ymin=0, ymax=Inf, alpha=0.1, fill="blue") +
+  #annotate("rect", xmin=12.5, xmax=24.5, ymin=0, ymax=Inf, alpha=0.1, fill="red") +
+  annotate("text", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("text", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black") +
+  
+  # Prep control/intervention data
+  geom_point(data=step4its_gg %>% filter(rp == 0), aes(color="control")) +
+  geom_line(data=step4its_gg %>% filter(rp == 0), aes(color="control"), linetype="solid") +
+  geom_point(data=step4its_gg %>% filter(rp == 1), aes(color="intervention")) +
+  geom_line(data=step4its_gg %>% filter(rp == 1), aes(color="intervention"), linetype="solid") +
+
+  scale_color_manual(name="Group", values = cols2) +
+  theme(legend.position = "bottom")
+
+
+```
+
+```{r cits-workflow }
+
+library(tidymodels)
+
+lm_mod <- linear_reg() %>%
+  set_engine('lm') 
+
+lm_fit <- 
+  lm_mod %>% 
+  fit(propnonRecontact ~ time + rp + rptime + level + trend + rplevel + rptrend, data = ts_df)
+
+mean_pred <- predict(lm_fit, new_data = ts_df)
+
+plot_data <- 
+  ts_df %>% 
+  bind_cols(mean_pred)
+
+
+lm_fit_no_18 <- 
+  lm_mod %>% 
+  fit(propnonRecontact ~ time + rp + rptime + level + trend + rplevel + rptrend, data = ts_df_no_18)
+
+
+# Intercept is the initial value of the control group
+# time is existing trend in control group
+# rp is the difference in levels between control and intervention
+# rptime is the trend of hte intervention with reference to control
+# level is post-pilot control change in level of non-conveyance
+# trend is post-pilot control change in trend on non-conveyance
+# rplevel shows post-pilot intervention group change in level
+# rptrend is the post-pilot intervention group change in trend
+
+
+dw_test <- tidy(lmtest::dwtest(lm(propnonRecontact ~ time + rp + rptime + level + trend + rplevel + rptrend, data = ts_df),iterations=12,alternative="two.sided"))
+
+
+```
+
+```{r cits-table-prep }
+
+f <- function(x) {
+  y <- sprintf("%.1f", x * 100,1)
+  return(y)
+}
+
+cits_tidy <- tidy(lm_fit, conf.int = T) %>%
+  mutate_at(c("estimate", "conf.low", "conf.high"), f) %>%
+  mutate(
+    ci = glue::glue("{conf.low}--{conf.high}"),
+    p.value = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
+  )
+
+
+cits_tidy_no_18 <- tidy(lm_fit_no_18, conf.int = T) %>%
+  mutate_at(c("estimate", "conf.low", "conf.high"), f) %>%
+  mutate(
+    ci = glue::glue("{conf.low}--{conf.high}"),
+    p.value = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
+  )
+  
+
+ols_table <- tidy(lm_fit, conf.int = T) %>%
+  mutate_at(c("estimate", "conf.low", "conf.high"), f) %>%
+  mutate(
+    ` ` = case_when(
+      term == "(Intercept)" ~ "Initial control group level",
+      term == "time" ~ "Pre-placement control group trend",
+      term == "rp" ~ "Difference in level between control and intervention groups",
+      term == "rptime" ~ "Intervention group trend relative to control group",
+      term == "level" ~ "Post-placement change in control group level",
+      term == "trend" ~ "Post-placement change in control group trend",
+      term == "rplevel" ~ "Post-placement intervention group change in level relative to control group",
+      term == "rptrend" ~ "Post-placement intervention group change in trend relative to control group"
+    ),
+    `Coefficient (%)` = estimate,
+    `95% CI` = glue::glue("{conf.low} to {conf.high}"),
+    `P value` = ifelse(p.value < 0.001, "<0.001", sprintf("%.3f", p.value))
+  ) %>%
+  dplyr::select(` `, `Coefficient (%)`, `95% CI`, `P value`)
+
+
+```
+
+Figure \@ref(fig:fig6) illustrates the change in raw and fitted CITS model data between the pre- and post-rotation phase. There was no indication of autoregression, where future values are based on past values  (Durbin-Watson statistic `r round(dw_test$statistic,2)`, p=`r round(dw_test$p.value,2)`). Post-rotation, the intervention group significantly increased their appropriate non-conveyance rate by `r cits_tidy$estimate[7]`% (95%CI `r cits_tidy$ci[7]`%, p=`r cits_tidy$p.value[7]`) relative to the control group (Table \@ref(tab:cits-table)). However, there was a non-statistically significant decrease in the trend of appropriate non-conveyance relative to the control group of `r cits_tidy$estimate[8]`% (95%CI `r cits_tidy$ci[8]`%, p=`r cits_tidy$p.value[8]`). Removal of the working impression as a matching variable resulted in a reduction in post-rotation intervention group change in level relative to control group to  `r cits_tidy_no_wi$estimate[7]`% (95%CI `r cits_tidy_no_wi$ci[7]`%, p=`r cits_tidy_no_wi$p.value[7]`), but not trend (`r cits_tidy_no_wi$estimate[8]`%, 95%CI `r cits_tidy_no_wi$ci[8]`%, p=`r cits_tidy_no_wi$p.value[8]`)
+
+
+
+```{r fig6, fig.cap="Effect of 10-week primary care rotation on safe non-conveyance. a) Monthly appropriate non-conveyance rates b) Fitted CITS model. Dashed lines represent the counterfactuals (what would have happened in the absence of the intervention).", fig.height = 10}
+
+# There was an outlier in the intervention group at month 18, but a sensitivity analysis conducted with the data point removed, suggested it had little effect on the post-rotation level and trend of appropriate non-conveyance (`r cits_tidy_no_18$estimate[7]`%, 95%CI `r cits_tidy_no_18$ci[7]`%, p=`r cits_tidy_no_18$p.value[7]` and `r cits_tidy_no_18$estimate[8]`%, 95%CI `r cits_tidy_no_18$ci[8]`%, p=`r cits_tidy_no_18$p.value[8]` respectively).
+
+
+# Alternating control and rp
+new_data_points <- data.frame(
+  time = c(1, 1, 12, 12, 13, 13, 24, 24),
+  rp = rep(c(0, 1), 4),
+  rptime = c(0, 1, 0, 12, 0, 13, 0, 24),
+  level = c(0, 0, 0, 0, 1, 1, 1, 1),
+  trend = c(0, 0, 0, 0, 1, 1, 12, 12),
+  rplevel = c(0, 0, 0, 0, 0, 1, 0, 1),
+  rptrend = c(0, 0, 0, 0, 0, 1, 0, 12),
+  stringsAsFactors = F
+)
+
+# Control then rp
+cf_data_points <- data.frame(
+  time = c(13, 24, 13, 24),
+  rp = c(0, 0, 1, 1),
+  rptime = c(0, 0, 13, 24),
+  level = c(0, 0, 1, 1),
+  trend = c(0, 0, 12, 12),
+  rplevel = c(0, 0, 0, 0),
+  rptrend = c(0,0, 0, 0),
+  stringsAsFactors = F
+)
+
+# 12 months rp non-conveyance
+
+rp_12_months_data_points <- data.frame(
+  time = c(12, 24),
+  rp = c(1, 1),
+  rptime = c(12, 24),
+  level = c(1, 1),
+  trend = c(12, 12),
+  rplevel = c(1, 1),
+  rptrend = c(1, 12),
+  stringsAsFactors = F
+)
+
+rp_12_months_pred <- predict(lm_fit, new_data = rp_12_months_data_points)
+rp_12_months_pred_ci <- predict(lm_fit, new_data = rp_12_months_data_points, type = "conf_int")
+
+mean_pred <- predict(lm_fit, new_data = new_data_points)
+cf_mean_pred <- predict(lm_fit, new_data = cf_data_points)
+
+plot_data <- new_data_points %>%
+  bind_cols(mean_pred)
+
+cf_plot_data <- cf_data_points %>%
+  bind_cols(cf_mean_pred)
+
+cols2 <- c("control"="#0000ff", "intervention"="#ff0000")
+
+fig6 <- ggplot(data = ts_df, aes(x = time, y = propnonRecontact)) + 
+  # Prepare graph
+  theme_bw() +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Proportion of patients safely non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  geom_vline(xintercept = 12.5, color="black") +
+  annotate("text", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("text", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black") +
+  
+  # Plot actual data points
+  geom_point(data=ts_df %>% filter(rp == 0), aes(color="control"), alpha = 0.2) +
+  geom_point(data=ts_df %>% filter(rp == 1), aes(color="intervention"), alpha = 0.2) +
+  
+  # Plot rp lines
+  geom_line(data=plot_data %>% filter(rp == 1, level == 0), aes(y = .pred, color="intervention"), linetype="solid") +
+  geom_line(data=plot_data %>% filter(rp == 1, level == 1), aes(y = .pred, color="intervention"), linetype="solid") +
+  
+  # Plot counterfactual rp lines
+  geom_line(data=cf_plot_data %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
+  geom_line(data=cf_plot_data %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
+  
+  # Plot control lines
+  geom_line(data=plot_data %>% filter(rp == 0, level == 0), aes(y = .pred, color="control"), linetype="solid") +
+  geom_line(data=plot_data %>% filter(rp == 0, level == 1), aes(y = .pred, color="control"), linetype="solid") +
+  
+  # Plot counterfactual control lines
+  geom_line(data=cf_plot_data %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
+  geom_line(data=cf_plot_data %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
+
+  scale_color_manual(name="Group", values = cols2) +
+  theme(legend.position = "bottom")
+
+ggpubr::ggarrange(fig5, fig6, nrow = 2, ncol = 1, labels = "auto", common.legend = T)
+
+```
+
+```{r cits-table, cache = F}
+knitr::kable(ols_table, caption="Result of segmented regression analysis for appropriate non-conveyance", booktabs = TRUE, longtable = T, format = format) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position")) %>%
+  column_spec(1, width = "25em")
+```
+
+## Economic analysis {-}
+
+
+```{r econ_1}
+
+# Calculate the per incident cost for an SP
+# 10 weeks 
+
+ten_weeks_salary = (31121/52) * 10
+
+# 10 weeks salary for 10 SPs
+ten_for_ten = ten_weeks_salary * 10
+
+# SPs attended 2059 cases (including missing wi) in the post-rotation phase
+
+salary_per_inc = round(ten_for_ten / 2059, 2)
+
+# £29.07 per incident.
+
+
+
+# For recalls, include cost of secondary trip.
+
+econ_df <- df %>%
+  #filter(n < 3) %>%
+  dplyr::select(conveyed, recontact, recontact_RRV, recontact_Amb, recontact_conveyed, intervention, rot_paras, `safe non-conveyance`)
+
+# Calculate the total cost for each incident based on the unit costs
+econ_df$cost <- mapply(function(conveyed, recontact, recontact_conveyed, rp)
+  {
+  
+    call_cost <- 7.33
+    S_and_T <- 209.38
+    S_T_and_C <- 257.34
+    A_E <- 135
+    
+    cost = 0
+    
+    # Add placement cost if rp
+    
+    if(rp == "Rotational Paramedics") {
+      cost = cost + salary_per_inc
+    }
+    
+    # Add 999 call
+    
+    cost = cost + call_cost
+    
+    # If no ambulances and RRV conveyed, then need to ST and C
+    
+    if(conveyed == 1) {
+      cost = cost + S_T_and_C + A_E
+    } else {
+      cost = cost + S_and_T
+    }
+    
+    # If not conveyed but there is a recontact
+    # Then need to add these costs
+    
+    if(conveyed == 0 & recontact == 1) {
+      
+      # Add 999 call
+      
+      cost = cost + call_cost
+      
+      # If no ambulances and RRV conveyed, then need to ST and C
+      
+      if(recontact_conveyed == 1) {
+        cost = cost + S_T_and_C + A_E
+      } else {
+        cost = cost + S_and_T
+      }
+      
+    }
+    
+    return(cost)
+    
+  },
+  conveyed = econ_df$conveyed, recontact = econ_df$recontact, recontact_conveyed = econ_df$recontact_conveyed, rp = econ_df$rot_paras)
+
+
+cost_convey_df <- econ_df %>%
+  filter(intervention == "Post") %>%
+  dplyr::select(cost, `safe non-conveyance`, rot_paras) %>%
+  group_by(rot_paras) %>%
+  summarise(
+    n = n(),
+    mean_cost = mean(cost),
+    tot_cost = sum(cost),
+    num_nc = sum(`safe non-conveyance`),
+    cost_per_convey = sum(cost)/num_nc
+  )
+
+
+  # cost_convey_df
+
+```
+
+```{r econ_rp}
+
+# Boostrap resample in order to determine the 95%CI
+
+boot_mean <- function(orig, resamp) {
+  mean(orig$cost[resamp])
+}
+
+boot_convey <- function(orig, resamp) {
+  sum(orig$cost[resamp])/sum(orig$`safe non-conveyance`[resamp])
+}
+
+mean_rp_df <- econ_df %>% 
+  filter(
+    rot_paras == "Rotational Paramedics",
+    intervention == "Post"
+  ) %>%
+  dplyr::select(cost, `safe non-conveyance`)
+
+  mean_results_rp <- boot(mean_rp_df, boot_mean, R = 6000)
+  
+  mean_results_rp_sc <- boot(mean_rp_df, boot_convey, R = 6000)
+  
+
+
+```
+
+```{r econ_control}
+  mean_control_df <- econ_df %>% 
+  filter(
+    rot_paras == "Control",
+    intervention == "Post"
+  ) %>%
+  dplyr::select(cost, `safe non-conveyance`)
+
+  set.seed(123)
+  mean_results_control <- boot(mean_control_df, boot_mean, R = 6000)
+  # broom::tidy(mean_results_control)
+  
+  mean_results_control_sc <- boot(mean_control_df, boot_convey, R = 6000)
+
+```
+
+```{r mean_cost_per_unit}
+  
+  ci_mean_rp <- boot.ci(mean_results_rp)
+  ci_mean_control <- boot.ci(mean_results_control)
+  
+
+```
+
+```{r mean_cost_per_sc}
+  
+  ci_mean_rp_sc <- boot.ci(mean_results_rp_sc)
+  ci_mean_control_sc <- boot.ci(mean_results_control_sc)
+  
+
+```
+
+```{r bootstrap_diff }
+
+  boot_diff_convey <- function(orig, resamp) {
+    
+    control <- orig %>%
+      filter(row_number() %in% resamp, rot_paras == "Control")
+    control_mean <- sum(control$cost)/sum(control$`safe non-conveyance`)
+    
+    intervention <- orig %>%
+      filter(row_number() %in% resamp, rot_paras == "Rotational Paramedics")
+    int_mean <- sum(intervention$cost)/sum(intervention$`safe non-conveyance`)
+    
+    # print(control_mean - int_mean)
+    
+    return(control_mean - int_mean)
+  }
+
+  mean_diff_df <- econ_df %>% 
+  filter(
+    intervention == "Post"
+  ) %>%
+  dplyr::select(cost, rot_paras, `safe non-conveyance`)
+
+  set.seed(123)
+  mean_results_diff <- boot(mean_diff_df, boot_diff_convey, R = 6000)
+  
+  ci_diff <- boot.ci(mean_results_diff)
+  
+
+```
+
+
+```{r abstract-data, cache = F }
+
+abstract_df <- data.frame(
+
+  # CITS data
+  level_val = cits_tidy$estimate[7],
+  level_ci = cits_tidy$ci[7],
+  level_p = cits_tidy$p.value[7],
+  trend_val = cits_tidy$estimate[8],
+  trend_ci = cits_tidy$ci[8],
+  trend_p = cits_tidy$p.value[8],
+  
+  # Economic data
+  rp_mean_cost_per_inc = round(broom::tidy(mean_results_rp)$statistic,2),
+  rp_ci_per_inc = paste0(round(ci_mean_rp$bca[4],2), "--£", round(ci_mean_rp$bca[5],2)),
+  control_mean_cost_per_inc = round(broom::tidy(mean_results_control)$statistic,2),
+  control_mean_ci_per_inc = paste0(round(ci_mean_control$bca[4],2), "--£", round(ci_mean_control$bca[5],2)),
+  
+  rp_mean_cost_per_nc = round(broom::tidy(mean_results_rp_sc)$statistic,2),
+  rp_ci_per_nc = paste0(round(ci_mean_rp_sc$bca[4],2), "--£", round(ci_mean_rp_sc$bca[5],2)),
+  control_mean_cost_per_nc = round(broom::tidy(mean_results_control_sc)$statistic,2),
+  control_ci_per_nc = paste0(round(ci_mean_control_sc$bca[4],2), "--£", round(ci_mean_control_sc$bca[5],2)),
+  
+  stringsAsFactors = F
+  
+)
+
+if(synth_data == TRUE) {
+  saveRDS(abstract_df, 'SynData/abstract-data.rds')
+} else {
+  saveRDS(abstract_df, 'Data/abstract-data.rds')
+}
+
+# Post-rotation, intervention group paramedics cost a mean of £`r round(broom::tidy(mean_results_rp)$statistic,2)` per incident (95% CI £`r paste0(round(ci_mean_rp$bca[4],2), "--£", round(ci_mean_rp$bca[5],2))`), compared to £`r round(broom::tidy(mean_results_control)$statistic,2)` per incident (95% CI £`r paste0(round(ci_mean_control$bca[4],2), "--£", round(ci_mean_control$bca[5],2))`) for the control group. 
+
+# intervention group paramedics, costing a mean of £`r round(broom::tidy(mean_results_rp_no_wi)$statistic,2)` per incident (95% CI £`r paste0(round(ci_mean_rp_no_wi$bca[4],2), "--£", round(ci_mean_rp_no_wi$bca[5],2))`), versus £`r round(broom::tidy(mean_results_control_no_wi)$statistic,2)` per incident (95% CI £`r paste0(round(ci_mean_control_no_wi$bca[4],2), "--£", round(ci_mean_control_no_wi$bca[5],2))`) for the control group. 
+
+```
+
+
+Post-placement, the cost per appropriate non-conveyance for intervention paramedics was a mean of £`r round(broom::tidy(mean_results_rp_sc)$statistic,2)` (95% bootstrapped CI £`r paste0(round(ci_mean_rp_sc$bca[4],2), "--£", round(ci_mean_rp_sc$bca[5],2))`) versus £`r round(broom::tidy(mean_results_control_sc)$statistic,2)` (95% bootstrapped CI £`r paste0(round(ci_mean_control_sc$bca[4],2), "--£", round(ci_mean_control_sc$bca[5],2))`) for the control group. This represents a mean saving of £`r round(broom::tidy(mean_results_diff)$statistic, 2)` per appropriate non-conveyance (95% bootstrapped CI £`r paste0(round(ci_diff$bca[4],2), "--£", round(ci_diff$bca[5], 2))`) for rotating paramedics compared to the control group.
+
+**INCLUDE COST-EFFECTIVENESS ANALYSIS**
+
+
+The sensitivity analysis (excluding working impression) calculate the mean post-placement cost per appropriate non-conveyance for intervention paramedics to be £`r round(broom::tidy(mean_results_rp_sc_no_wi)$statistic,2)` (95% bootstrapped CI £`r paste0(round(ci_mean_rp_sc_no_wi$bca[4],2), "--£", round(ci_mean_rp_sc_no_wi$bca[5],2))`) versus £`r round(broom::tidy(mean_results_control_sc_no_wi)$statistic,2)` (95% bootstrapped CI £`r paste0(round(ci_mean_control_sc_no_wi$bca[4],2), "--£", round(ci_mean_control_sc_no_wi$bca[5],2))`) for the control group. This represents a mean saving of £`r round(broom::tidy(mean_results_diff_no_wi)$statistic, 2)` per appropriate non-conveyance (95% bootstrapped CI £`r paste0(round(ci_diff_no_wi$bca[4],2), "--£", round(ci_diff_no_wi$bca[5], 2))`) for rotating paramedics compared to the control group.
+
