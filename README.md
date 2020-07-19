@@ -21,7 +21,7 @@ Yes, mostly! I have created a docker image which will enable you to recreate the
 7. Open a browser window and head to: *http://127.0.0.1:8787*.
 8. In the browser window, you should see an RStudio environment. Click on the *SPRAINED-master* folder to open it. ![RStudio environment](https://github.com/RichardPilbery/SPRAINED/raw/master/images/02-rstudio.png)
 9. Scroll down to find the project file, called *SPRAINED.Rproj* and click it. ![Open project](https://github.com/RichardPilbery/SPRAINED/raw/master/images/03-run-proj.png)
-10. Confirm that you'd like to open the project by clicking *Yes* ![Open project](https://github.com/RichardPilbery/SPRAINED/raw/master/images/03-confirm.png)
+10. Confirm that you'd like to open the project by clicking *Yes* ![Open project](https://github.com/RichardPilbery/SPRAINED/raw/master/images/04-confirm.png)
 11. In the top-right hand window, click on the Build tab and then by clicking on the triangle next to the Build Book button, choose the *bookdown::pdf_document2* option. ![Build book](https://github.com/RichardPilbery/SPRAINED/raw/master/images/05-build.png)
 12. Be patient, this might take 5--10 minutes, but once completed a new window with the rendered PDF should appear.
 
