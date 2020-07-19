@@ -15,7 +15,7 @@ Yes, mostly! I have created a docker image which will enable you to recreate the
 2. Run Docker
 3. Copy the [Dockerfile](https://raw.githubusercontent.com/RichardPilbery/SPRAINED/master/Dockerfile) and place it into an empty folder
 3. Open a terminal window (or Powershell in Windoze) and change the directory to match the folder that contains the Dockerfile
-4. Enter the following command: `docker build ./`
+4. Enter the following command: `docker build ./` WARNING: The docker image is around 3.3Gb in size.
 5. This might take a while, but you should end with a comment like *Successfully built IMAGEID* ![Build success](https://github.com/RichardPilbery/SPRAINED/raw/master/images/01-build.png)
 6. Run the command: `docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true IMAGEID` where IMAGEID is the IMAGEID value from step 6. Note that this command disables authentication, which is fine for a local version, but not if you plan on hosting it somewhere...
 7. Open a browser window and head to: *http://127.0.0.1:8787*.
@@ -29,7 +29,7 @@ Yes, mostly! I have created a docker image which will enable you to recreate the
 This paper presents independent research by the NIHR Applied Research Collaboration Yorkshire and Humber (ARC YH). The views expressed in this publication are those of the author(s) and not necessarily those of the National Institute for Health Research or the Department of Health and Social Care.
 
 ## Trial registration
-ClinicalTrials.gov identifier: [NCT03599687](https://clinicaltrials.gov/ct2/show/NCT03599687)
+ClinicalTrials.gov identifier: [NCT04193800](https://clinicaltrials.gov/ct2/show/NCT04193800)
 
 ## Acknowledgements
 This work uses data provided by patients and collected by the NHS as part of their care and support. The authors would also like to thank the Yorkshire Ambulance service business intelligence team who collated the data used in this study.
