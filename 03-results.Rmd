@@ -194,10 +194,19 @@ ggplot(df %>% filter(rp == 1), aes(x = newTimeElapsed)) +
 
 ```{r activity}
 
-activity_df <- readRDS('Data/summary_activity_table.rds') %>%
+if(synth_data == TRUE) {
+  
+  activity_df <- readRDS('SynData/summary_activity_table.rds') %>%
   rename(
     Activity = activity,
   )
+  
+} else {
+  activity_df <- readRDS('Data/summary_activity_table.rds') %>%
+  rename(
+    Activity = activity,
+  )
+}
 
 kableone(activity_df, caption="SP daliy activity (exluding leave and days off) stratified by pre- and post-placement time periods", booktabs = TRUE, longtable = TRUE, format = format) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position")) 
