@@ -17,7 +17,7 @@ Yes, mostly! I have created a docker image which will enable you to recreate the
 3. Open a terminal window (or Powershell in Windoze) and change the directory to match the folder that contains the Dockerfile
 4. Enter the following command: `docker build ./`
 5. This might take a while, but you should end with a comment like *Successfully built IMAGEID* ![Build success](https://github.com/RichardPilbery/SPRAINED/raw/master/images/01-build.png)
-6. Run the command: `docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true IMAGEID` where IMAGEID is the IMAGEID value from step 5. Note that this command disables authentication, which is fine for a local version, but not if you plan on hosting it somewhere...
+6. Run the command: `docker run --rm -p 127.0.0.1:8787:8787 -e DISABLE_AUTH=true IMAGEID` where IMAGEID is the IMAGEID value from step 6. Note that this command disables authentication, which is fine for a local version, but not if you plan on hosting it somewhere...
 7. Open a browser window and head to: *http://127.0.0.1:8787*.
 8. In the browser window, you should see an RStudio environment. Click on the *SPRAINED-master* folder to open it. ![RStudio environment](https://github.com/RichardPilbery/SPRAINED/raw/master/images/02-rstudio.png)
 9. Scroll down to find the project file, called *SPRAINED.Rproj* and click it. ![Open project](https://github.com/RichardPilbery/SPRAINED/raw/master/images/03-run-proj.png)
