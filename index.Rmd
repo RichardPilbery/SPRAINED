@@ -38,18 +38,19 @@ header-includes:
 | Wakefield 41 Business Park
 | Wakefield
 | WF2 0XQ
-
-ORCID: [https://orcid.org/0000-0002-5797-9788](https://orcid.org/0000-0002-5797-9788)
-
+| ORCID: [https://orcid.org/0000-0002-5797-9788](https://orcid.org/0000-0002-5797-9788)
 | email: r.pilbery@nhs.net
-| tel: 
+
 
 | **Prof. Tracey Young**
 | School of Health and Related Research, University of Sheffield
+| ORCID: [https://orcid.org/0000-0001-8467-0471](https://orcid.org/0000-0001-8467-0471)
 
 | **Andrew Hodge**
 | Yorkshire Ambulance Service NHS Trust
-
+| ORCID: [https://orcid.org/0000-0002-2632-2249](https://orcid.org/0000-0002-2632-2249)
+|
+|
 
 **Keywords:** Paramedic rotation, Urgent care, Safe non-conveyance
 
@@ -63,6 +64,19 @@ ORCID: [https://orcid.org/0000-0002-5797-9788](https://orcid.org/0000-0002-5797-
 
 format = "latex"
 synth_data = TRUE
+
+
+# options(bookdown.post.latex = function(x) {
+# 
+#   # x is the content of the LaTeX output file
+#   # str_replace can take a named vector of patterns and replacements
+#   replace_patterns <- c(
+#     "^\\\\bibliography\\{SPRAINED-refs.bib\\}" = "",         # Remove the default bibliography
+#     "^BIBLIOGRAPHY" = "\\\\bibliography{SPRAINED-refs.bib}"  # Add it in a new spot
+#   )
+# 
+#   stringr::str_replace_all(x, replace_patterns)
+# })
 
 if(synth_data == FALSE) {
   abstract = 'Data/abstract-data.rds'
@@ -94,6 +108,9 @@ adf <- data.frame(
   control_mean_cost_per_nc = 0,
   control_ci_per_nc = 0,
   
+  diff_mean = 0,
+  diff_ci = 0,
+  
   stringsAsFactors = F
   
 )
@@ -108,17 +125,17 @@ adf <- data.frame(
 ## Abstract {-}
 
 ### Introduction {-}
-Ambulance conveyance rates in the UK NHS are almost 70%, despite an increase in non-emergency cases. This is increasing the demands on crowded emergency departments (ED) and contributes to increased ambulance turnaround times. Yorkshire Ambulance Service introduced a specialist paramedic (SP) role to try and address this, but non-conveyance rates in this group have not been much greater than regular paramedics.
+NHS ambulance service conveyance rates in the UK are almost 70%, despite an increase in non-emergency cases. This is increasing the demands on crowded emergency departments (ED) and contributes to increased ambulance turnaround times. Yorkshire Ambulance Service introduced a specialist paramedic (SP) role to try and address this, but non-conveyance rates in this group have not been as high as expected.
 
 
 ### Methods {-}
-We conducted a controlled interrupted time series analysis to study appropriate non-conveyance rates before and after the GP rotation. A costing analysis examined the average cost per appropriate non-conveyance achieved for patients receiving care from intervention group SPs compared to a matched control group.
+We conducted a controlled interrupted time series analysis of appropriate non-conveyance rates in the 12 months before and after an SP primary care placement, using matched groups of patients cared for by SPs and control paramedics. A costing analysis examined the average cost per appropriate non-conveyance and the cost-effectiveness ratio between groups. 
 
 ### Results {-}
-Between June 2017 and December 2019 there were 7349 incidents attended by intervention group SPs and eligible for inclusion. Following removal of cases with missing data, 5537/7349 (75.3%) cases remained. Post-placement, the intervention group demonstrated an increase in appropriate non-conveyance rate by `r adf$level_val`% (95%CI `r adf$level_ci`%, p=`r adf$level_p`) and a reduction in the trend of appropriate non-conveyance relative to the control group of `r adf$trend_val`% (95%CI `r adf$trend_ci`%, p=`r adf$trend_p`). 
+Between June 2017 and December 2019 there were 7349 incidents attended by intervention group SPs and eligible for inclusion. Following removal of cases with missing data, 5537/7349 (75.3%) cases remained. Post-placement, the intervention group demonstrated an increase in appropriate non-conveyance rate by `r adf$level_val`% (95%CI `r adf$level_ci`%, p`r adf$level_p`) and a reduction in the trend of appropriate non-conveyance relative to the control group of `r adf$trend_val`% (95%CI `r adf$trend_ci`%, p=`r adf$trend_p`). 
 
-Post-rotation, intervention group SPs cost a mean of £`r adf$rp_mean_cost_per_inc` per incident (95% CI £`r adf$rp_ci_per_inc`), compared to £`r adf$control_mean_cost_per_inc` per incident (95% CI £`r adf$control_mean_ci_per_inc`) for the control group. Cost per appropriate non-conveyance for intervention SPs was a mean of £`r adf$rp_mean_cost_per_nc` (95%CI £`r adf$rp_ci_per_nc`) versus £`r adf$control_mean_cost_per_nc` (95%CI £`r adf$control_ci_per_nc`) for the control group.
+Post-placement, the cost per appropriate non-conveyance for intervention paramedics was a mean of £`r adf$rp_mean_cost_per_nc` (95% bootstrapped CI £`r adf$rp_ci_per_nc`) versus £`r adf$control_mean_cost_per_nc` (95% bootstrapped CI £`r adf$control_ci_per_nc`) for the control group. This represents a mean saving of £`r adf$diff_mean` per appropriate non-conveyance (95% bootstrapped CI £`r adf$diff_ci`) for SPs compared to the control group, and a cost-effectiveness ratio of £`r adf$mean_cea` per percentage increase in appropriate non-conveyance (95% bootstrapped CI £`r adf$ci_cea`).
 
 ### Conclusion {-}
 
-In this single NHS ambulance service study, we found a clinically and statistical significant increase in appropriate non-conveyance rates by SPs who had completed a 10-week GP rotation. This improvement persisted for the 12-month period following the rotation and was cheaper compared to usual care.
+In this single UK NHS ambulance service study, we found a clinically important and statistically significant increase in appropriate non-conveyance rates by specialist paramedics who had completed a 10-week GP placement. This improvement persisted for the 12-month period following the placement and demonstrated cost savings compared to usual care.

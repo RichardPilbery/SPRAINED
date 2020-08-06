@@ -7,9 +7,9 @@ output:
 
 # Appendix A {-}
 
-Due to the high number of missing working impressions, we conducted a sensitivity analysis including data that was matched without working impression as a variable. Figure \@ref(fig:fig6-no-wi) shows the change in proportion of appropriate non-conveyance in this group and can be compared with \@ref(fig:fig6). The results of the segmented regression can be seen in Table \@ref(tab:cits-table-no-wi).
+Due to the high number of missing working impressions, we conducted a sensitivity analysis including data that was matched without working impression as a variable. Figure \@ref(fig:fig6-no-wi) shows the change in proportion of appropriate non-conveyance in this group and can be compared with Figure \@ref(fig:fig6). The results of the segmented regression can be seen in Table \@ref(tab:cits-table-no-wi).
 
-```{r fig6-no-wi, fig.cap="Effect of 10-week primary care rotation on safe non-conveyance (excluding working impression). a) Monthly appropriate non-conveyance rates b) Fitted CITS model. Dashed lines represent the counterfactuals.", fig.height = 10}
+```{r fig6-no-wi, fig.cap="Effect of 10-week primary care rotation on appropriate non-conveyance (excluding working impression). a) Monthly appropriate non-conveyance rates b) Fitted CITS model. Dashed lines represent the counterfactuals.", fig.height = 10}
 
 rp_12_months_pred_no_wi <- predict(lm_fit_no_wi, new_data = rp_12_months_data_points)
 rp_12_months_pred_ci_no_wi <- predict(lm_fit_no_wi, new_data = rp_12_months_data_points, type = "conf_int")
@@ -29,7 +29,7 @@ fig6_no_wi <- ggplot(data = ts_df_no_wi, aes(x = time, y = propnonRecontact)) +
   # Prepare graph
   theme_bw() +
   scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
-  scale_y_continuous(name = "Proportion of patients safely non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  scale_y_continuous(name = "Proportion of patients appropriately non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
   geom_vline(xintercept = 12.5, color="black") +
   annotate("text", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
   annotate("text", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black") +
@@ -67,3 +67,4 @@ knitr::kable(ols_table_no_wi, caption="Result of segmented regression analysis f
   column_spec(1, width = "25em")
 ```
 
+\newpage

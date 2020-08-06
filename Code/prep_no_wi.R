@@ -51,7 +51,7 @@ if(synth_data == TRUE) {
 matchedTbl_pre_post_control_rp_no_wi <- CreateTableOne(
   vars = c("safe non-conveyance", "non-conveyed", "season", "ooh", "call_cat","rural_urban", "imd_decile",  "ltc", "age", "sex", "risk" ,  "los"),
   strata = c("intervention","rot_paras"),
-  data = df,
+  data = df_no_wi,
   test = F,
   factorVars = c("safe non-conveyance", "non-conveyed", "season", "call_cat", "ooh", "risk", "los", "age", "sex", "imd_decile", "rural_urban", "ltc")
 )
@@ -328,7 +328,7 @@ salary_per_inc = round(ten_for_ten / 2059, 2)
 
 econ_df_no_wi <- df_no_wi %>%
   #filter(n < 3) %>%
-  dplyr::select(conveyed, recontact, recontact_RRV, recontact_Amb, recontact_conveyed, intervention, rot_paras, `safe non-conveyance`)
+  dplyr::select(conveyed, recontact, recontact_RRV, recontact_Amb, recontact_conveyed, intervention, rot_paras, `safe non-conveyance`, newTimeElapsed, rp)
 
 # Calculate the total cost for each incident based on the unit costs
 econ_df_no_wi$cost <- mapply(function(conveyed, recontact, recontact_conveyed, rp)
@@ -384,7 +384,6 @@ econ_df_no_wi$cost <- mapply(function(conveyed, recontact, recontact_conveyed, r
 conveyed = econ_df_no_wi$conveyed, recontact = econ_df_no_wi$recontact, recontact_conveyed = econ_df_no_wi$recontact_conveyed, rp = econ_df_no_wi$rot_paras)
 
 
-
 cost_convey_df_no_wi <- econ_df_no_wi %>%
   filter(intervention == "Post") %>%
   dplyr::select(cost, `safe non-conveyance`, rot_paras) %>%
@@ -417,9 +416,9 @@ mean_rp_df_no_wi <- econ_df_no_wi %>%
   ) %>%
   dplyr::select(cost, `safe non-conveyance`)
 
-mean_results_rp_no_wi <- boot(mean_rp_df_no_wi, boot_mean, R = 6000)
+#mean_results_rp_no_wi <- boot(mean_rp_df_no_wi, boot_mean, R = 6000, parallel = "multicore", ncpus = 6)
 
-mean_results_rp_sc_no_wi <- boot(mean_rp_df_no_wi, boot_convey, R = 6000)
+mean_results_rp_sc_no_wi <- boot(mean_rp_df_no_wi, boot_convey, R = 6000, parallel = "multicore", ncpus = 6)
 
 
 # econ_control --------------------------
@@ -432,23 +431,23 @@ mean_control_df_no_wi <- econ_df_no_wi %>%
   dplyr::select(cost, `safe non-conveyance`)
 
 set.seed(123)
-mean_results_control_no_wi <- boot(mean_control_df_no_wi, boot_mean, R = 6000)
+#mean_results_control_no_wi <- boot(mean_control_df_no_wi, boot_mean, R = 6000)
 # broom::tidy(mean_results_control)
 
-mean_results_control_sc_no_wi <- boot(mean_control_df_no_wi, boot_convey, R = 6000)
+mean_results_control_sc_no_wi <- boot(mean_control_df_no_wi, boot_convey, R = 6000, parallel = "multicore", ncpus = 6)
 
 
 # mean_cost_per_unit ---------------------------
 
 
-ci_mean_rp_no_wi <- boot.ci(mean_results_rp_no_wi)
-ci_mean_control_no_wi <- boot.ci(mean_results_control_no_wi)
+# ci_mean_rp_no_wi <- boot.ci(mean_results_rp_no_wi, type="perc")
+# ci_mean_control_no_wi <- boot.ci(mean_results_control_no_wi, type="perc")
 
 
 # mean_cost_per_sc -----------------------
 
-ci_mean_rp_sc_no_wi <- boot.ci(mean_results_rp_sc_no_wi)
-ci_mean_control_sc_no_wi <- boot.ci(mean_results_control_sc_no_wi)
+ci_mean_rp_sc_no_wi <- boot.ci(mean_results_rp_sc_no_wi, type="perc")
+ci_mean_control_sc_no_wi <- boot.ci(mean_results_control_sc_no_wi, type="perc")
 
 
 boot_diff_convey <- function(orig, resamp) {
@@ -474,8 +473,89 @@ mean_diff_df_no_wi <- econ_df_no_wi %>%
 
 set.seed(123)
 
-mean_results_diff_no_wi <- boot(mean_diff_df_no_wi, boot_diff_convey, R = 6000)
+mean_results_diff_no_wi <- boot(mean_diff_df_no_wi, boot_diff_convey, R = 6000, parallel = "multicore", ncpus = 6)
 
-ci_diff_no_wi <- boot.ci(mean_results_diff_no_wi)
+ci_diff_no_wi <- boot.ci(mean_results_diff_no_wi, type="perc")
+
+
+
+boot_cea <- function(orig, resamp) {
+  
+  # Calculate cost difference
+  
+  control <- orig %>%
+    filter(row_number() %in% resamp, rot_paras == "Control", intervention == "Post")
+  control_mean <- sum(control$cost)/sum(control$`safe non-conveyance`)
+  
+  intervention <- orig %>%
+    filter(row_number() %in% resamp, rot_paras == "Rotational Paramedics", intervention == "Post")
+  int_mean <- sum(intervention$cost)/sum(intervention$`safe non-conveyance`)
+  
+  mean_diff = control_mean - int_mean
+  
+  # Calculate effect size difference
+  
+  ## Prep new dataset
+  temp_df <- orig %>%
+    # Only include fields in current bootstrap sample
+    filter(row_number() %in% resamp) %>%
+    group_by(rot_paras, newTimeElapsed) %>%
+    summarise(
+      n = n(),
+      propnonConveyed = sum(conveyed == 0)/n,
+      propnonRecontact = sum(`safe non-conveyance` == 1)/n,
+      intervention = first(intervention),
+      rp = first(rp)
+    ) %>% 
+    ungroup() %>%
+    mutate(
+      intervention = ifelse(intervention == "Pre", 0, 1),
+      timeSinceIntervention = ifelse(intervention == 0, 0, newTimeElapsed - 12)
+    ) %>%
+    rename(
+      level = intervention,
+      trend = timeSinceIntervention,
+      time = newTimeElapsed
+    ) %>%
+    mutate(
+      rptime = ifelse(rp == 1, time, 0),
+      rplevel = ifelse(rp == 1, level, 0),
+      rptrend = ifelse(rp == 1, trend, 0)
+    )
+  
+  lm_mod <- linear_reg() %>%
+    set_engine('lm') 
+  
+  lm_fit <- 
+    lm_mod %>% 
+    fit(propnonRecontact ~ time + rp + rptime + level + trend + rplevel + rptrend, data = temp_df)
+  
+  diff_in_safe_conveyance <- (tidy(lm_fit) %>% filter(term == 'rplevel') %>% pull(estimate)) 
+  
+  #print(diff_in_safe_conveyance)
+  
+  cea = mean_diff/diff_in_safe_conveyance
+  
+  
+  return(cea)
+  
+}
+
+set.seed(123)
+
+#Time difference of 22.08459 mins
+start <- Sys.time()
+mean_cea_no_wi <- boot(econ_df_no_wi, boot_cea, R = 6000, parallel = "multicore", ncpus = 6)
+end <- Sys.time()
+
+#end-start
+
+start <- Sys.time()
+# BCA does not work :(
+ci_cea_no_wi <- boot.ci(mean_cea_no_wi, type=c("perc"))
+end <- Sys.time()
+
+#end-start
+
 
 

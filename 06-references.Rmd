@@ -1,4 +1,9 @@
-# References {-}
+---
+editor_options:
+  chunk_output_type: console
+output:
+  word_document: default
+---
 
-BIBLIOGRAPHY
+# References {-}
 
