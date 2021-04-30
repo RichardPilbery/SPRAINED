@@ -3,8 +3,8 @@
 
 # Setup -----------------------------------
 
-#synth_data = FALSE
-#format = 'html'
+# synth_data = FALSE
+# format = 'html'
 
 library(tidyverse)
 library(stringr)
@@ -46,6 +46,76 @@ if(synth_data == TRUE) {
     )
   
 }
+
+
+
+# Economic analysis -----------------
+# Calculate the per incident cost for an SP
+# 10 weeks 
+
+ten_weeks_salary = (31121/52) * 10
+
+# 10 weeks salary for 10 SPs
+ten_for_ten = ten_weeks_salary * 10
+
+# SPs attended 2059 cases (including missing wi) in the post-rotation phase
+
+salary_per_inc = round(ten_for_ten / 2059, 2)
+
+# £29.07 per incident.
+
+# Calculate the total cost for each incident based on the unit costs
+df_no_wi$cost <- mapply(function(conveyed, recontact, recontact_conveyed, rp, intervention)
+{
+  
+  call_cost <- 7.33
+  S_and_T <- 209.38
+  S_T_and_C <- 257.34
+  A_E <- 135
+  
+  cost = 0
+  
+  # Add placement cost if rp
+  
+  if(rp == "Rotational Paramedics" & intervention == "Post") {
+    cost = cost + salary_per_inc
+  }
+  
+  # Add 999 call
+  
+  cost = cost + call_cost
+  
+  # If no ambulances and RRV conveyed, then need to ST and C
+  
+  if(conveyed == 1) {
+    cost = cost + S_T_and_C + A_E
+  } else {
+    cost = cost + S_and_T
+  }
+  
+  # If not conveyed but there is a recontact
+  # Then need to add these costs
+  
+  if(conveyed == 0 & recontact == 1) {
+    
+    # Add 999 call
+    
+    cost = cost + call_cost
+    
+    # If no ambulances and RRV conveyed, then need to ST and C
+    
+    if(recontact_conveyed == 1) {
+      cost = cost + S_T_and_C + A_E
+    } else {
+      cost = cost + S_and_T
+    }
+    
+  }
+  
+  return(cost)
+  
+},
+conveyed = df_no_wi$conveyed, recontact = df_no_wi$recontact, recontact_conveyed = df_no_wi$recontact_conveyed, rp = df_no_wi$rot_paras, intervention = df_no_wi$intervention)
 
 
 matchedTbl_pre_post_control_rp_no_wi <- CreateTableOne(
@@ -197,6 +267,23 @@ ts_df_no_wi <- df_no_wi %>%
 ts_df_no_18_no_wi <- ts_df_no_wi %>%
   filter(!(rp == 1 & time == 18))
 
+ts_df_econ_no_wi <- df_no_wi %>%
+  mutate(
+    intervention = ifelse(intervention == "Pre", 0, 1),
+    timeSinceIntervention = ifelse(intervention == 0, 0, newTimeElapsed - 12)
+  ) %>%
+  rename(
+    level = intervention,
+    trend = timeSinceIntervention,
+    time = newTimeElapsed,
+    snc = `safe non-conveyance`
+  ) %>%
+  mutate(
+    rptime = ifelse(rp == 1, time, 0),
+    rplevel = ifelse(rp == 1, level, 0),
+    rptrend = ifelse(rp == 1, trend, 0)
+  )
+
 
 # fig5 -------------------------
 
@@ -309,253 +396,211 @@ ols_table_no_wi <- tidy(lm_fit_no_wi, conf.int = T) %>%
   dplyr::select(` `, `Coefficient (%)`, `95% CI`, `P value`)
 
 
-# econ_1 -----------------------------
 
-
-# Calculate the per incident cost for an SP
-# 10 weeks 
-
-ten_weeks_salary = (31121/52) * 10
-
-# 10 weeks salary for 10 SPs
-ten_for_ten = ten_weeks_salary * 10
-
-# SPs attended 2059 cases (including missing wi) in the post-rotation phase
-
-salary_per_inc = round(ten_for_ten / 2059, 2)
-
-# £29.07 per incident.
-
-econ_df_no_wi <- df_no_wi %>%
-  #filter(n < 3) %>%
-  dplyr::select(conveyed, recontact, recontact_RRV, recontact_Amb, recontact_conveyed, intervention, rot_paras, `safe non-conveyance`, newTimeElapsed, rp)
-
-# Calculate the total cost for each incident based on the unit costs
-econ_df_no_wi$cost <- mapply(function(conveyed, recontact, recontact_conveyed, rp)
-{
+plot_fig6_fn <- function(data, model, flag) {
   
-  call_cost <- 7.33
-  S_and_T <- 209.38
-  S_T_and_C <- 257.34
-  A_E <- 135
+  # Alternating control and rp
+  new_data_points <- data.frame(
+    time = c(1, 1, 12, 12, 13, 13, 24, 24),
+    rp = rep(c(0, 1), 4),
+    rptime = c(0, 1, 0, 12, 0, 13, 0, 24),
+    level = c(0, 0, 0, 0, 1, 1, 1, 1),
+    trend = c(0, 0, 0, 0, 1, 1, 12, 12),
+    rplevel = c(0, 0, 0, 0, 0, 1, 0, 1),
+    rptrend = c(0, 0, 0, 0, 0, 1, 0, 12),
+    stringsAsFactors = F
+  )
   
-  cost = 0
+  # Control then rp
+  cf_data_points <- data.frame(
+    time = c(13, 24, 13, 24),
+    rp = c(0, 0, 1, 1),
+    rptime = c(0, 0, 13, 24),
+    level = c(0, 0, 1, 1),
+    trend = c(0, 0, 12, 12),
+    rplevel = c(0, 0, 0, 0),
+    rptrend = c(0,0, 0, 0),
+    stringsAsFactors = F
+  )
   
-  # Add placement cost if rp
+  # 12 months rp non-conveyance
   
-  if(rp == "Rotational Paramedics") {
-    cost = cost + salary_per_inc
+  rp_12_months_data_points <- data.frame(
+    time = c(12, 24),
+    rp = c(1, 1),
+    rptime = c(12, 24),
+    level = c(1, 1),
+    trend = c(12, 12),
+    rplevel = c(1, 1),
+    rptrend = c(1, 12),
+    stringsAsFactors = F
+  )
+  
+  rp_12_months_pred <- predict(model, new_data = rp_12_months_data_points)
+  rp_12_months_pred_ci <- predict(model, new_data = rp_12_months_data_points, type = "conf_int")
+  
+  mean_pred <- predict(model, new_data = new_data_points)
+  cf_mean_pred <- predict(model, new_data = cf_data_points)
+  
+  plot_data <- new_data_points %>%
+    bind_cols(mean_pred)
+  
+  cf_plot_data <- cf_data_points %>%
+    bind_cols(cf_mean_pred)
+  
+  cols2 <- c("control"="#0000ff", "intervention"="#ff0000")
+  
+  a <- 'propnonRecontact'
+  ypos <- 0.9
+  
+  if(flag == 'econ') {
+    a <- 'cost' 
+    ypos <- 250
   }
   
-  # Add 999 call
+  b <- ggplot(data = data, aes(x = time, y = !!sym(a))) + 
+    # Prepare graph
+    theme_bw() +
+    scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+    geom_vline(xintercept = 12.5, color="black", size=2) +
+    annotate("text", label = "Pre-placement", x = 4, y = ypos, size = 4, colour = "black") +
+    annotate("text", label = "Post-placement", x = 16, y = ypos, size = 4, colour = "black") +
+    
+    # Plot actual data points
+    geom_point(data=data %>% filter(rp == 0), aes(color="control"), alpha = 0.2) +
+    geom_point(data=data %>% filter(rp == 1), aes(color="intervention"), alpha = 0.2) +
+    
+    # Plot rp lines
+    geom_line(data=plot_data %>% filter(rp == 1, level == 0), aes(y = .pred, color="intervention"), linetype="solid") +
+    geom_line(data=plot_data %>% filter(rp == 1, level == 1), aes(y = .pred, color="intervention"), linetype="solid") +
+    
+    # Plot counterfactual rp lines
+    geom_line(data=cf_plot_data %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
+    geom_line(data=cf_plot_data %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
+    
+    # Plot control lines
+    geom_line(data=plot_data %>% filter(rp == 0, level == 0), aes(y = .pred, color="control"), linetype="solid") +
+    geom_line(data=plot_data %>% filter(rp == 0, level == 1), aes(y = .pred, color="control"), linetype="solid") +
+    
+    # Plot counterfactual control lines
+    geom_line(data=cf_plot_data %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
+    geom_line(data=cf_plot_data %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
+    
+    scale_color_manual(name="Group", values = cols2) +
+    theme(legend.position = "bottom")
   
-  cost = cost + call_cost
-  
-  # If no ambulances and RRV conveyed, then need to ST and C
-  
-  if(conveyed == 1) {
-    cost = cost + S_T_and_C + A_E
+  if(flag == 'cits') {
+    b + scale_y_continuous(name = "Proportion of patients appropriately non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) 
   } else {
-    cost = cost + S_and_T
+    b + scale_y_continuous(name = "Cost (£)", expand = c(0,0), breaks=seq(0,400,50), limits = c(0,400)) 
   }
   
-  # If not conveyed but there is a recontact
-  # Then need to add these costs
-  
-  if(conveyed == 0 & recontact == 1) {
-    
-    # Add 999 call
-    
-    cost = cost + call_cost
-    
-    # If no ambulances and RRV conveyed, then need to ST and C
-    
-    if(recontact_conveyed == 1) {
-      cost = cost + S_T_and_C + A_E
-    } else {
-      cost = cost + S_and_T
-    }
-    
-  }
-  
-  return(cost)
-  
-},
-conveyed = econ_df_no_wi$conveyed, recontact = econ_df_no_wi$recontact, recontact_conveyed = econ_df_no_wi$recontact_conveyed, rp = econ_df_no_wi$rot_paras)
+}
+
+fig6_no_wi <- plot_fig6_fn(ts_df_no_wi, lm_fit_no_wi, 'cits')
+#fig6_econ <- plot_fig6_fn(ts_df_econ, lm_fit_econ, 'econ')
 
 
-cost_convey_df_no_wi <- econ_df_no_wi %>%
-  filter(intervention == "Post") %>%
-  dplyr::select(cost, `safe non-conveyance`, rot_paras) %>%
-  group_by(rot_paras) %>%
+
+
+# Economic analysis -----------------
+
+fit_lm_bootstrap <- function(split) {
+  lm(cost ~ time + rp + rptime + level + trend + rplevel + rptrend + snc, data = split)
+}
+
+econ_df_no_wi <- ts_df_econ_no_wi %>%
+  mutate(
+    strata = case_when(
+      level == 0 & rot_paras == 'Control' ~ 'P1',
+      level == 0 & rot_paras == 'Rotational Paramedics' ~ 'P2',
+      level == 1 & rot_paras == 'Control' ~ 'P3',
+      level == 1 & rot_paras == 'Rotational Paramedics' ~ 'P4',
+    )
+  )
+
+set.seed(123)
+econ_boots_no_wi <- bootstraps(econ_df_no_wi, 1000, strata = strata)
+
+econ_models_no_wi <- econ_boots_no_wi %>%
+  mutate(
+    model = map(splits, fit_lm_bootstrap),
+    coef_info = map(model, tidy)
+  )
+
+econ_coefs_no_wi <- econ_models_no_wi %>% unnest(coef_info)
+
+percentile_intervals_no_wi <- int_pctl(econ_models_no_wi, coef_info)
+
+calc_cost <- function(level, rp, rplevel, rptime, rptrend, snc, time, trend, pi, which_coef) {
+
+  est <- pi %>% select(!!which_coef) %>% pull()
+
+  est_costs <- est[1] + (est[2] * level) + (est[3] * rp) + (est[4] * rplevel) + (est[5] * rptime) + (est[6] * rptrend) + (est[7] * snc) + (est[8] * time) + (est[9] * trend)
+
+}
+
+est_no_wi <- percentile_intervals_no_wi %>% select(".estimate") %>% pull()
+est_upper_no_wi <- percentile_intervals_no_wi %>% select(".upper") %>% pull()
+est_lower_no_wi <- percentile_intervals_no_wi %>% select(".lower") %>% pull()
+
+final_econ_df_no_wi <- ts_df_econ_no_wi %>%
+  rowwise() %>%
+  mutate(
+    est_costs = calc_cost(level, rp, rplevel, rptime, rptrend, snc, time, trend, percentile_intervals_no_wi, ".estimate"),
+    est_upper_costs = calc_cost(level, rp, rplevel, rptime, rptrend, snc, time, trend, percentile_intervals_no_wi, ".upper"),
+    est_lower_costs = calc_cost(level, rp, rplevel, rptime, rptrend, snc, time, trend, percentile_intervals_no_wi, ".lower")
+  )
+
+#saveRDS(final_econ_df_no_wi, 'Data/final_econ_df_no_wi.rds')
+
+# if(synth_data == FALSE) {
+#   final_econ_df_no_wi <- readRDS('Data/final_econ_df_no_wi.rds')
+# } else {
+#   final_econ_df_no_wi <- readRDS('SynData/final_econ_df_no_wi.rds')
+# }
+
+diff_in_safe_conveyance <- (tidy(lm_fit_no_wi) %>% filter(term == 'rplevel') %>% pull(estimate))
+
+pre_post_econ_df_no_wi <- final_econ_df_no_wi %>%
+  group_by(level, rot_paras) %>%
   summarise(
+    mean_cost = mean(est_costs),
+    mean_upper_cost = mean(est_upper_costs),
+    mean_lower_cost = mean(est_lower_costs),
     n = n(),
-    mean_cost = mean(cost),
-    tot_cost = sum(cost),
-    num_nc = sum(`safe non-conveyance`),
-    cost_per_convey = sum(cost)/num_nc
+    non_convey = sum(snc == 1),
+    cost_per_safe_conveyance = sum(est_costs)/sum(snc == 1),
+    cost_upper_per_safe_conveyance = sum(est_upper_costs)/sum(snc == 1),
+    cost_lower_per_safe_conveyance = sum(est_lower_costs)/sum(snc == 1),
   )
 
 
+#saveRDS(pre_post_econ_df_no_wi, 'Data/pre_post_econ_df_no_wi.rds')
+# if(synth_data == FALSE) {
+#   pre_post_econ_df_no_wi <- readRDS('Data/pre_post_econ_df_no_wi.rds')
+# } else {
+#   pre_post_econ_df_no_wi <- readRDS('SynData/pre_post_econ_df_no_wi.rds')
+# }
 
-# econ_rp -----------------------------
+# CEA = Cost Pre - Cost Post / rplevel
 
+diff_in_safe_conveyance_no_wi <- (tidy(lm_fit_no_wi) %>% filter(term == 'rplevel') %>% pull(estimate))
 
-boot_mean <- function(orig, resamp) {
-  mean(orig$cost[resamp])
-}
+cea_df_no_wi <- bind_rows(
+  pre_values <-  pre_post_econ_df_no_wi %>% filter(level == 0, rot_paras == 'Rotational Paramedics') %>% select(ends_with('safe_conveyance')),
+  post_values = pre_post_econ_df_no_wi %>% filter(level == 1, rot_paras == 'Rotational Paramedics') %>% select(ends_with('safe_conveyance'))
+) %>%
+  pivot_longer(cols = cost_per_safe_conveyance:cost_lower_per_safe_conveyance) %>%
+  group_by(name) %>%
+  summarise(
+    mean_diff = first(value) - last(value),
+    cea = (first(value) - last(value))/diff_in_safe_conveyance_no_wi
+  )
 
-boot_convey <- function(orig, resamp) {
-  sum(orig$cost[resamp])/sum(orig$`safe non-conveyance`[resamp])
-}
-
-mean_rp_df_no_wi <- econ_df_no_wi %>%
-  filter(
-    rot_paras == "Rotational Paramedics",
-    intervention == "Post"
-  ) %>%
-  dplyr::select(cost, `safe non-conveyance`)
-
-#mean_results_rp_no_wi <- boot(mean_rp_df_no_wi, boot_mean, R = 6000, parallel = "multicore", ncpus = 6)
-
-mean_results_rp_sc_no_wi <- boot(mean_rp_df_no_wi, boot_convey, R = 6000, parallel = "multicore", ncpus = 6)
-
-
-# econ_control --------------------------
-
-mean_control_df_no_wi <- econ_df_no_wi %>%
-  filter(
-    rot_paras == "Control",
-    intervention == "Post"
-  ) %>%
-  dplyr::select(cost, `safe non-conveyance`)
-
-set.seed(123)
-#mean_results_control_no_wi <- boot(mean_control_df_no_wi, boot_mean, R = 6000)
-# broom::tidy(mean_results_control)
-
-mean_results_control_sc_no_wi <- boot(mean_control_df_no_wi, boot_convey, R = 6000, parallel = "multicore", ncpus = 6)
-
-
-# mean_cost_per_unit ---------------------------
-
-
-# ci_mean_rp_no_wi <- boot.ci(mean_results_rp_no_wi, type="perc")
-# ci_mean_control_no_wi <- boot.ci(mean_results_control_no_wi, type="perc")
-
-
-# mean_cost_per_sc -----------------------
-
-ci_mean_rp_sc_no_wi <- boot.ci(mean_results_rp_sc_no_wi, type="perc")
-ci_mean_control_sc_no_wi <- boot.ci(mean_results_control_sc_no_wi, type="perc")
-
-
-boot_diff_convey <- function(orig, resamp) {
-  
-  control <- orig %>%
-    filter(row_number() %in% resamp, rot_paras == "Control")
-  control_mean <- sum(control$cost)/sum(control$`safe non-conveyance`)
-  
-  intervention <- orig %>%
-    filter(row_number() %in% resamp, rot_paras == "Rotational Paramedics")
-  int_mean <- sum(intervention$cost)/sum(intervention$`safe non-conveyance`)
-  
-  # print(control_mean - int_mean)
-  
-  return(control_mean - int_mean)
-}
-
-mean_diff_df_no_wi <- econ_df_no_wi %>% 
-  filter(
-    intervention == "Post"
-  ) %>%
-  dplyr::select(cost, rot_paras, `safe non-conveyance`)
-
-set.seed(123)
-
-mean_results_diff_no_wi <- boot(mean_diff_df_no_wi, boot_diff_convey, R = 6000, parallel = "multicore", ncpus = 6)
-
-ci_diff_no_wi <- boot.ci(mean_results_diff_no_wi, type="perc")
-
-
-
-boot_cea <- function(orig, resamp) {
-  
-  # Calculate cost difference
-  
-  control <- orig %>%
-    filter(row_number() %in% resamp, rot_paras == "Control", intervention == "Post")
-  control_mean <- sum(control$cost)/sum(control$`safe non-conveyance`)
-  
-  intervention <- orig %>%
-    filter(row_number() %in% resamp, rot_paras == "Rotational Paramedics", intervention == "Post")
-  int_mean <- sum(intervention$cost)/sum(intervention$`safe non-conveyance`)
-  
-  mean_diff = control_mean - int_mean
-  
-  # Calculate effect size difference
-  
-  ## Prep new dataset
-  temp_df <- orig %>%
-    # Only include fields in current bootstrap sample
-    filter(row_number() %in% resamp) %>%
-    group_by(rot_paras, newTimeElapsed) %>%
-    summarise(
-      n = n(),
-      propnonConveyed = sum(conveyed == 0)/n,
-      propnonRecontact = sum(`safe non-conveyance` == 1)/n,
-      intervention = first(intervention),
-      rp = first(rp)
-    ) %>% 
-    ungroup() %>%
-    mutate(
-      intervention = ifelse(intervention == "Pre", 0, 1),
-      timeSinceIntervention = ifelse(intervention == 0, 0, newTimeElapsed - 12)
-    ) %>%
-    rename(
-      level = intervention,
-      trend = timeSinceIntervention,
-      time = newTimeElapsed
-    ) %>%
-    mutate(
-      rptime = ifelse(rp == 1, time, 0),
-      rplevel = ifelse(rp == 1, level, 0),
-      rptrend = ifelse(rp == 1, trend, 0)
-    )
-  
-  lm_mod <- linear_reg() %>%
-    set_engine('lm') 
-  
-  lm_fit <- 
-    lm_mod %>% 
-    fit(propnonRecontact ~ time + rp + rptime + level + trend + rplevel + rptrend, data = temp_df)
-  
-  diff_in_safe_conveyance <- (tidy(lm_fit) %>% filter(term == 'rplevel') %>% pull(estimate)) 
-  
-  #print(diff_in_safe_conveyance)
-  
-  cea = mean_diff/diff_in_safe_conveyance
-  
-  
-  return(cea)
-  
-}
-
-set.seed(123)
-
-#Time difference of 22.08459 mins
-start <- Sys.time()
-mean_cea_no_wi <- boot(econ_df_no_wi, boot_cea, R = 6000, parallel = "multicore", ncpus = 6)
-end <- Sys.time()
-
-#end-start
-
-start <- Sys.time()
-# BCA does not work :(
-ci_cea_no_wi <- boot.ci(mean_cea_no_wi, type=c("perc"))
-end <- Sys.time()
-
-#end-start
-
-
-
+#saveRDS(cea_df_no_wi, 'Data/cea_df_no_wi.rds')
+# if(synth_data == FALSE) {
+#   cea_df_no_wi <- readRDS('Data/cea_df_no_wi.rds')
+# } else {
+#   cea_df_no_wi <- readRDS('SynData/cea_df_no_wi.rds')
+# }

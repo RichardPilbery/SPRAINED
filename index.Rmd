@@ -4,9 +4,9 @@ author: "Richard Pilbery, Tracey Young, Andrew Hodge"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: 
-  bookdown::pdf_document2:
-    toc: FALSE
   bookdown::word_document2:
+    toc: FALSE
+  bookdown::pdf_document2:
     toc: FALSE
 documentclass: article
 classoption: openany
@@ -24,7 +24,7 @@ header-includes:
 ---
 
 `r if (!knitr:::is_html_output()) '
-# The effect of a specialist paramedic primary care rotation on appropriate non-conveyance decisions: a controlled interrupted time series analysis {-}
+# The effect of a specialist paramedic primary care rotation on appropriate non-conveyance decisions (SPRAINED) study: a controlled interrupted time series analysis {-}
 '`
 `r if (knitr:::is_html_output()) '
 # Preamble {-}
@@ -129,13 +129,26 @@ NHS ambulance service conveyance rates in the UK are almost 70%, despite an incr
 
 
 ### Methods {-}
-We conducted a controlled interrupted time series analysis of appropriate non-conveyance rates in the 12 months before and after an SP primary care placement, using matched groups of patients cared for by SPs and control paramedics. A costing analysis examined the average cost per appropriate non-conveyance and the cost-effectiveness ratio between groups. 
+We conducted a controlled interrupted time series analysis using data from incidents between June 2017 and December 2019, to study appropriate non-conveyance rates before and after a GP placement. A costing analysis examined the average cost per appropriate non-conveyance achieved for patients receiving care from intervention group SPs pre- and post-placement was also conducted.
 
 ### Results {-}
-Between June 2017 and December 2019 there were 7349 incidents attended by intervention group SPs and eligible for inclusion. Following removal of cases with missing data, 5537/7349 (75.3%) cases remained. Post-placement, the intervention group demonstrated an increase in appropriate non-conveyance rate by `r adf$level_val`% (95%CI `r adf$level_ci`%, p`r adf$level_p`) and a reduction in the trend of appropriate non-conveyance relative to the control group of `r adf$trend_val`% (95%CI `r adf$trend_ci`%, p=`r adf$trend_p`). 
+7349 incidents attended by intervention group SPs were eligible for inclusion. Following removal of cases with missing data, 5537/7349 (75.3%) cases remained. Post-placement, the intervention group demonstrated an increase in appropriate non-conveyance rate of `r adf$level_val`% (95%CI `r adf$level_ci`%, p`r adf$level_p`), and a reduction in the trend of appropriate non-conveyance of `r adf$trend_val`% (95%CI `r adf$trend_ci`%, p=`r adf$trend_p`), relative to the control group.
 
-Post-placement, the cost per appropriate non-conveyance for intervention paramedics was a mean of £`r adf$rp_mean_cost_per_nc` (95% bootstrapped CI £`r adf$rp_ci_per_nc`) versus £`r adf$control_mean_cost_per_nc` (95% bootstrapped CI £`r adf$control_ci_per_nc`) for the control group. This represents a mean saving of £`r adf$diff_mean` per appropriate non-conveyance (95% bootstrapped CI £`r adf$diff_ci`) for SPs compared to the control group, and a cost-effectiveness ratio of £`r adf$mean_cea` per percentage increase in appropriate non-conveyance (95% bootstrapped CI £`r adf$ci_cea`).
+Post-placement, the cost per appropriate non-conveyance for intervention group SPs was a mean of £`r adf$rp_mean_cost_per_nc` (95% bootstrapped CI £`r adf$rp_ci_per_nc`) versus £`r adf$control_mean_cost_per_nc` (95% bootstrapped CI £`r adf$control_ci_per_nc`) for the same group in the pre-placement phase. This represents a mean saving of £`r adf$diff_mean` per appropriate non-conveyance (95% bootstrapped CI £`r adf$diff_ci`) and a cost-effectiveness ratio of £`r adf$mean_cea` per percentage increase in appropriate non-conveyance (95% bootstrapped CI £`r adf$ci_cea`).
 
 ### Conclusion {-}
 
 In this single UK NHS ambulance service study, we found a clinically important and statistically significant increase in appropriate non-conveyance rates by specialist paramedics who had completed a 10-week GP placement. This improvement persisted for the 12-month period following the placement and demonstrated cost savings compared to usual care.
+
+## What this study adds {-}
+
+### What is known about this subject {-}
+
++ UK ambulance service conveyance rates are almost 70% despite an increase in the number of non-emergency cases
++ Health Education England funded a pilot in 2018 to rotate paramedics into a range of health settings to improve patient care and relieve pressures on primary care services.
+
+### What this study adds {-}
+
++ Clinically important and statistically significant increases in appropriate non-conveyance rates can be achieved by specialist paramedics who complete a 10-week primary care placement.
++ This improvement is sustained for at least 12-months following the placement cost-effective.
+

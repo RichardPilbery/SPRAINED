@@ -2,60 +2,19 @@
 editor_options:
   chunk_output_type: console
 output:
+  pdf_document: default
   word_document: default
 ---
 
-# Appendix A {-}
+\newpage
 
-Due to the high number of missing working impressions, we conducted a sensitivity analysis including data that was matched without working impression as a variable. Figure \@ref(fig:fig6-no-wi) shows the change in proportion of appropriate non-conveyance in this group and can be compared with Figure \@ref(fig:fig6). The results of the segmented regression can be seen in Table \@ref(tab:cits-table-no-wi).
+# Supplementary 1 {-}
+
+Due to the high number of missing working impressions, we conducted a sensitivity analysis including data that was matched without working impression as a variable. Figure \@ref(fig:fig6-no-wi) shows the change in proportion of appropriate non-conveyance in this group. The results of the segmented regression can be seen in Table \@ref(tab:cits-table-no-wi) and demonstrate a smaller increase appropriate non-conveyance in the intervention group relative to the control group of `r cits_tidy_no_wi$estimate[7]`% (95%CI `r cits_tidy_no_wi$ci[7]`%, p`r cits_tidy_no_wi$p.value[7]`), but smaller decrease in the trend of appropriate non-conveyance (`r cits_tidy_no_wi$estimate[8]`%, 95%CI `r cits_tidy_no_wi$ci[8]`%, p=`r cits_tidy_no_wi$p.value[8]`).
 
 ```{r fig6-no-wi, fig.cap="Effect of 10-week primary care rotation on appropriate non-conveyance (excluding working impression). a) Monthly appropriate non-conveyance rates b) Fitted CITS model. Dashed lines represent the counterfactuals.", fig.height = 10}
 
-rp_12_months_pred_no_wi <- predict(lm_fit_no_wi, new_data = rp_12_months_data_points)
-rp_12_months_pred_ci_no_wi <- predict(lm_fit_no_wi, new_data = rp_12_months_data_points, type = "conf_int")
-
-mean_pred_no_wi <- predict(lm_fit_no_wi, new_data = new_data_points)
-cf_mean_pred_no_wi <- predict(lm_fit_no_wi, new_data = cf_data_points)
-
-plot_data_no_wi <- new_data_points %>%
-  bind_cols(mean_pred_no_wi)
-
-cf_plot_data_no_wi <- cf_data_points %>%
-  bind_cols(cf_mean_pred_no_wi)
-
-cols2 <- c("control"="#0000ff", "intervention"="#ff0000")
-
-fig6_no_wi <- ggplot(data = ts_df_no_wi, aes(x = time, y = propnonRecontact)) + 
-  # Prepare graph
-  theme_bw() +
-  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
-  scale_y_continuous(name = "Proportion of patients appropriately non-conveyed", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
-  geom_vline(xintercept = 12.5, color="black") +
-  annotate("text", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
-  annotate("text", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black") +
-  
-  # Plot actual data points
-  geom_point(data=ts_df_no_wi %>% filter(rp == 0), aes(color="control"), alpha = 0.2) +
-  geom_point(data=ts_df_no_wi %>% filter(rp == 1), aes(color="intervention"), alpha = 0.2) +
-  
-  # Plot rp lines
-  geom_line(data=plot_data_no_wi %>% filter(rp == 1, level == 0), aes(y = .pred, color="intervention"), linetype="solid") +
-  geom_line(data=plot_data_no_wi %>% filter(rp == 1, level == 1), aes(y = .pred, color="intervention"), linetype="solid") +
-  
-  # Plot counterfactual rp lines
-  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
-  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 1), aes(y = .pred, color="intervention"), linetype="dashed") +
-  
-  # Plot control lines
-  geom_line(data=plot_data_no_wi %>% filter(rp == 0, level == 0), aes(y = .pred, color="control"), linetype="solid") +
-  geom_line(data=plot_data_no_wi %>% filter(rp == 0, level == 1), aes(y = .pred, color="control"), linetype="solid") +
-  
-  # Plot counterfactual control lines
-  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
-  geom_line(data=cf_plot_data_no_wi %>% filter(rp == 0), aes(y = .pred, color="control"), linetype="dashed") +
-
-  scale_color_manual(name="Group", values = cols2) +
-  theme(legend.position = "bottom")
+#source('Code/prep_no_wi.R')
 
 ggpubr::ggarrange(fig5_no_wi, fig6_no_wi, nrow = 2, ncol = 1, labels = "auto", common.legend = T)
 
@@ -66,5 +25,61 @@ knitr::kable(ols_table_no_wi, caption="Result of segmented regression analysis f
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position")) %>%
   column_spec(1, width = "25em")
 ```
+
+\newpage
+
+
+# Supplementary 2 {-}
+
+The following figures highlight the difference in triage call acuity (Figure \@ref(fig:fig3)) and NEWS risk category (Figure \@ref(fig:fig4)) pre- and post-placement, demonstrating the need for a control in the study design.
+
+
+
+```{r fig3, fig.cap="Call category pre- and post-placement"}
+
+df1a <- df %>%
+  select(newTimeElapsed, call_cat, risk, intervention)
+
+levels(df1a$call_cat) <- c("category 1", "category 2", "category 3", "category 4", "category 5")
+
+df1a <- df1a %>%
+  mutate(
+    call_cat = case_when(
+      call_cat == "cat1" ~ "category 1",
+      call_cat == "cat2" ~ "category 2",
+      call_cat == "cat3" ~ "category 3",
+      call_cat == "cat4" ~ "category 4",
+      TRUE ~ "category 5"
+    )
+  )
+
+
+ggplot(df1a, aes(x = newTimeElapsed, fill = call_cat)) +
+  geom_histogram(binwidth =1, position="fill", color="black", size = 0.1) +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Percentage of incidents", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  labs(fill="Call Category") + 
+  theme(legend.position = "bottom", axis.title.x = element_text(vjust = -1)) + 
+  geom_vline(xintercept = 12.5, size = 1.5) +
+  scale_fill_viridis_d() +
+  annotate("label", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("label", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black")
+
+```
+
+```{r fig4, fig.cap="NEWS category pre- and post-placement", fig.pos="p"}
+
+ggplot(df, aes(x = newTimeElapsed, fill = risk)) +
+  geom_histogram(binwidth =1, position="fill", color="black", size = 0.1) +
+  scale_x_continuous(name="Months elapsed", breaks = seq(1,24,1), labels = seq(1,24,1), expand = c(0,0)) +
+  scale_y_continuous(name = "Percentage of incidents", expand = c(0,0), breaks=seq(0,1,0.1), limits = c(0,1), labels=scales::percent) +
+  scale_fill_brewer("NEWS risk category") +
+  theme(legend.position = "bottom", axis.title.x = element_text(vjust = -1)) + 
+  geom_vline(xintercept = 12.5, size = 2) +
+  annotate("label", label = "Pre-placement", x = 4, y = 0.9, size = 4, colour = "black") +
+  annotate("label", label = "Post-placement", x = 16, y = 0.9, size = 4, colour = "black")
+
+```
+
 
 \newpage

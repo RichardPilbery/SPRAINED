@@ -5,51 +5,35 @@ editor_options:
 ---
 # Methods {-}
 
-This study was a natural experiment using routinely collected observational data. We utilised a controlled interrupted time series (CITS) analysis method to detect any change in the level and trend of appropriate non-conveyance decisions by SPs and paramedics. The cost-effectiveness analysis examined the cost per appropriate non-conveyance achieved for patients receiving care from SPs who have completed a 10 week placement in a GP practice compared with those receiving usual care from paramedics and SPs who did not undertake the 10 week placement. In addition, we calculated the cost-effectiveness ratio to determine the difference in cost between groups per percent increase in appropriate non-conveyance.
+This study was a natural experiment using routinely collected observational data. We utilised a controlled interrupted time series (CITS) analysis method to detect any change in the level and trend of appropriate non-conveyance decisions by SPs following a 10-week GP practice placement. The cost-effectiveness analysis examined the cost per appropriate non-conveyance achieved for patients receiving care for the same group of SPs, comparing their post-placement performance with usual care pre-placement. In addition, we calculated the cost-effectiveness ratio to determine the difference in cost between groups per percent increase in appropriate non-conveyance.
 
 National reporting of non-conveyance rates describe the proportion of patients who call 999 and are not transported to ED. If a resource e.g. ambulance is not sent to scene, this call is classed as a 'hear and treat' call. However, if an ambulance is sent to scene but the patient is not subsequently transported to hospital, this is classed as a 'see and treat' call. SPs participating in the YAS HEE pilot, did not have the opportunity to undertake 'hear and treat' calls and so non-conveyance for the purpose of this study, refers only to 'see and treat' calls.
 
 ## Setting {-}
 
-YAS provides 24-hour emergency and health care services for the county of Yorkshire in the north of England. The county has a population of approximately five million, spread over almost 6000 square miles of varied terrain, included isolated moors and dales, coastline and heavily populated urban areas. In 2018/19 YAS received more than 998,500 emergency calls and responded to 798,968 incidents by either sending clinicians to scene or by providing assessment and advice over the telephone.
+YAS provides 24-hour emergency and health care services for the county of Yorkshire in the north of England and receives more than 998,500 emergency calls each year. The organisation employs approximately 1200 operational paramedics, 118 SPs and 33 ECPs. Following an internal recruitment process, 5 ECPs and 10 SPs  were interviewed and seconded to work with a number of primary care organisations in Leeds.  ECPs and SPs qualify with additional degree level training in clinical assessment, decision making and minor illness and injury management, and those selected for the pilot had a minimum of 2 years’ experience in these roles.  
 
-### Specialist paramedic rotation {-}
+The ECPs and SPs rotated between providing a home visiting service for 15 GP surgeries for 10 weeks, which included an induction program of primary care specific conditions, having their clinical practice observed by a GP and a named GP mentor. This was followed by rotation back into front line operations, either responding to 999 calls as a solo responder in a rapid response car or working in the emergency operations centre (EOC) staffing a dedicated dispatch desk for SPs, where they identified appropriate 999 calls according to their skills. Additional equipment carried by SPs included glue and butterfly stitches (Steri-Strips) for minor wound care, and a small range of steroids and antibiotics for common illnesses or exacerbation of chronic conditions.
 
-YAS employs approximately 118 SPs and 33 ECPs. In the Leeds area, 5 ECPs and 10 SPs worked with a number of primary care organisations. The ECPs and SPs rotated between providing a home visiting service for 15 GP surgeries for 10 weeks, followed by front line operations, either responding to 999 calls or working in the emergency operations centre (EOC) staffing a dedicated dispatch desk for SPs.
+
 
 
 ## Data sources {-}
 
 We used routinely collected computer aided dispatch (CAD) and patient record data to identify all cases attended by the 10 SPs who had completed a GP placement in the Leeds area. For operational reasons, these placements were staggered, with the first paramedics entering the rotation in June 2018 and the final paramedics completing their placements at the end of December 2018. In order to obtain sufficient data pre- and post-pilot, all cases attended by these paramedics in the 12 month period prior to the placement commencing and 12 months after the placement had completed were obtained. To count as an 'attendance', the SPs name had to appear on the patient record.
 
-To take account of case-mix and paramedic experience in the pre- and post-placement phase, a matched comparison (control) group consisting of cases in Yorkshire covering the period from the 1st June, 2017 to 31st December, 2019 was obtained. This cohort of patients received a face-to-face assessment by paramedics and SPs who did not take part in the GP rotation.
+To take account of case-mix and paramedic experience in the pre- and post-placement phase, a matched comparison (control) group consisting of incidents in Yorkshire occurring between the 1st June 2017 to 31st December 2019 was obtained. This cohort of patients received a face-to-face assessment by paramedics and SPs who did not take part in the GP rotation. Patients seen exclusively by staff not registered with the Health and Care Professions Council (HCPC) e.g. associate ambulance practitioners and emergency medical technicians were excluded.
 
-Since YAS does not keep a record of paramedic registration beyond the current 2-year registration cycle, it was not possible to determine how long staff had been registered as a paramedic using data from the Service. Instead, we identified when staff were first entered into the Health and Professions Council (HCPC) paramedic register.
+Since YAS does not keep a record of paramedic registration beyond the current 2-year registration cycle, it was not possible to determine how long staff had been registered as a paramedic using data from the Service. Instead, we identified when staff were first entered into the HCPC paramedic register.
 
 ## Study variables {-}
-We hypothesised that appropriate non-conveyance was likely to increase following the 10-week placement, but needed to ensure that we took account of factors previously identified as being important when pre-hospital clinicians make non-conveyance decisions [@ocathain_understanding_2018]. To achieve this, we aimed to match the control and intervention groups on the following variables:
-
-+ Patient:
-    + Age (5 year increments)
-    + Sex
-    + Working impression (as determined by paramedic on scene)
-    + Time of call (in-hours/out-of-hours)
-    + Call category
-    + Call month and year
-    + Lowest National Early Warning Score (NEWS) threshold
-+ Location (lower super output area, LSOA):
-    + Urban/rural
-    + Index of multiple deprivation decile
-    + Proportion of population within LSOA with a long-term physical or mental illness (0--4%, 4--8%, 8--12%)
-+ Paramedics
-    + Years registered as a paramedic (<1 year, 1–5 years, >5 years)
-    + Role designation at time of incident.
+We hypothesised that appropriate non-conveyance was likely to increase following the 10-week placement, but needed to ensure that we took account of factors previously identified as being important when pre-hospital clinicians make non-conveyance decisions [@ocathain_understanding_2018]. To achieve this, we aimed to match the control and intervention groups on patient age, sex, clinician determined working impression, time, month and year of call, triage category, lowest recorded National Early Warning Score (NEWS) threshold, lower super output area (LSOA) rural/urban classification, index of multiple deprivation decile and proportion of population in LSOA with a long-term physical or mental illness. Finally, we included the number of years clinicians had been registered as a paramedic and their role designation at the time of the incident.
     
 Since the ambulance service does not routinely capture outcome data for all patients, we pragmatically defined appropriate non-conveyance as any patient episode where the patient was not transferred to hospital and no further calls were made to the ambulance service in the following 72 hours.
 
 ## Matching {-}
 
-Matching was performed utilising a genetic algorithm and computed using the R statistics package 'Matching' [@sekhon_multivariate_2011]. Genetic algorithms are a subgroup of evolutionary computing which as the name suggests, imitate biological processes of reproduction and natural selection to solve according to 'fitness' [@mitchell_introduction_1996]. The 'Matching' package uses this algorithm to find the optimal balance between groups by examining the cumulative probability distribution functions of a variety of standardised statistics such as t-tests and Kolmogorov-Smirnov tests.
+Matching was performed utilising a genetic algorithm and computed using the R (v3.6.0) statistics package 'Matching' (v4.9-7) [@sekhon_multivariate_2011]. Genetic algorithms are a subgroup of evolutionary computing which as the name suggests, imitate biological processes of reproduction and natural selection to solve according to 'fitness' [@mitchell_introduction_1996]. The 'Matching' package uses this algorithm to find the optimal balance between groups by examining the cumulative probability distribution functions of a variety of standardised statistics such as t-tests and Kolmogorov-Smirnov tests.
 
 Cases where the patient record could not be located or where data was missing were excluded. With the exception of ECPs (who were removed since their non-conveyance rates are consistently higher than other clinicians), it was not possible to accurately determine what role designation paramedics in the control group had. As a result, this had to be removed as a matching variable.
 
@@ -65,32 +49,15 @@ Descriptive statistics were used to summarise the data pre- and post-placement a
 
 ### Primary outcome analysis {-}
 
-We conducted a retrospective analysis of appropriate non-conveyance before and after the GP placement, using segmented regression as part of a CITS design [@penfold_use_2013]. Since the SP placements were staggered, the actual month and year was not utilised. Instead, the number of months before and after the placement were used, so that month 1 was the month that occurred 12 months prior to the GP placement for all SPs and month 24, the month that occurred 12 months after the placement. It was anticipated that this would remove or reduce any autocorrelation. However, we checked for auto-regression and moving averages by performing the Durbin-Watson test and by plotting autocorrelation function and partial autocorrelation function plots. Coefficients from the model were used to predict the absolute change and trend in appropriate non-conveyance following the GP placement.
+We conducted a retrospective analysis of appropriate non-conveyance before and after the GP placement, using segmented regression as part of a CITS design [@penfold_use_2013]. Since the SP placements were staggered, the actual month and year was not utilised. Instead, the number of months before and after the placement were used, so that month 1 was the month that occurred 12 months prior to the GP placement for all SPs and month 24, the month that occurred 12 months after the placement. It was anticipated that this would remove or reduce any autocorrelation. However, we checked for auto-regression and moving averages by performing the Durbin-Watson test and by plotting autocorrelation function and partial autocorrelation function plots. Coefficients from the model were used to predict the absolute change and trend in appropriate non-conveyance following the GP placement, relative to the control group.
 
 ### Secondary outcome analysis {-}
 
-Salary costs were calculated for the 10 week GP placement and divided by the number of incidents attended by SPs to calculate a per-incident cost. SPs were assumed to be salaried at NHS Agenda for Change mid-band 6, which was £31,121 for 2018/19. Education costs were not included since all SPs had already undertaken the education component prior to the HEE pilot commencing. The resource use related to the 999 call handling, dispatch of an ambulance, cost of conveyance and admission to the ED was calculated using reference costs published by NHS Improvement [@nhs_improvement_national_2020] (Table \@ref(tab:callcosts)). For example, a non-conveyance would comprise the cost of answering a 999 call and cost of sending an ambulance (see and treat). In the event that a recall was made within 72 hours, the total cost for the non-conveyance would be the 999 call, ambulance (see and treat) plus the cost of the second call i.e. 999 call and ambulance (see and treat or see, treat and convey plus ED attendance). 
+Salary costs were calculated for the 10 week GP placement and divided by the number of incidents attended by SPs to calculate a per-incident cost. SPs were assumed to be salaried at NHS Agenda for Change mid-band 6, which was £31,121 for 2018/19. Education costs were not included since all SPs had already undertaken the education component prior to the HEE pilot commencing. The resource use related to the 999 call handling, dispatch of an ambulance, cost of conveyance and admission to the ED was calculated using reference costs published by NHS Improvement for the 2018/19 financial year [@nhs_improvement_national_2020]. The reference costs are a flat rate, irrespective of the number of resources or skill mix the Trust allocates to an incident. A 999 call made to the EOC costs £7.33, an ambulance see and treat response costs £209.38, an ambulance see, treat and convey response costs £257.34 and an ED attendance costs £135.00.
 
-```{r setup1, include=FALSE }
-knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message = FALSE, results = TRUE, cache = T, fig.align = "center", out.width = "90%")
-```
+A segmented regression analysis was conducted, similar to that of the primary objective, but with incident cost as the dependent variable and the addition of safe non-conveyance as an independent variable. This allowed us to adjust for any case mix differences between the pre- and post-placement phases. Bootstrapping was used to estimate uncertainty (reported as 95% bootstrapped confidence intervals) around cost estimates. Costs relating to patients seen by intervention group SPs post-placement was compared with costs arising from patients seen by the intervention group SPs pre-placement, and the results presented as the cost per appropriate conveyance and cost-effectiveness ratio.
 
-```{r callcosts, cache = F }
+## Patient and public involvement {-}
+YAS patient research ambassadors were consulted with respect to the validity of conducting the study and the wording of the Plain English summary.
 
-  library(tidyverse)
-  library(kableExtra)
-
-  cc <- data.frame(
-    item = c("999 call", "Ambulance: see and treat", "Ambulance: see, treat and convey", "ED attendance"),
-    cost = c("£7.33", "£209.38", "£257.34", "£135.00"),
-    stringsAsFactors = F
-  )
-
-  knitr::kable(cc, caption="Unit costs to the NHS for ambulance 999 calls", booktabs = T, longtable = T, format = format) %>%
-     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), latex_options = c("repeat_header", "striped", "hold_position"))
-
-```
-
-
-Bootstrapping was used to estimate uncertainty (reported as 95% bootstrapped confidence intervals) around cost estimates. Costs of those patients seen by intervention group SPs was compared with matched controls and the results presented as the cost per appropriate conveyance and cost-effectiveness ratio.
 
